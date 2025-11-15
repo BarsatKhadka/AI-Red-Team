@@ -36,7 +36,7 @@ function App() {
               onClick={() => setCurrentPage('files')}
               className={`nav-link ${currentPage === 'files' ? 'active' : ''}`}
             >
-              📁 Static Files
+              📁 Project Files
             </button>
             <button 
               onClick={() => setCurrentPage('deliverables')}

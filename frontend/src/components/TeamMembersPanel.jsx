@@ -89,12 +89,19 @@ function TeamMembersPanel({ project, team, onMemberSelect, onMessageClick, docum
                             }
                             onMessageClick(member.name, message.type, message.text, project.name, team.name, documents);
                           }}
-                          className="p-2 bg-gray-50 rounded border border-gray-200 hover:bg-gray-100 cursor-pointer"
+                          className="p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:shadow-sm cursor-pointer transition-all"
                         >
-                          <span className={`inline-block px-2 py-0.5 rounded text-xs font-semibold mb-1 ${getMessageTypeColor(message.type)}`}>
-                            {message.type}
-                          </span>
-                          <p className="text-xs text-gray-700 line-clamp-2">{message.text}</p>
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <span className={`text-xs font-medium px-2 py-1 rounded ${getMessageTypeColor(message.type)}`}>
+                                {message.type}
+                              </span>
+                              <span className="text-xs text-gray-500">
+                                {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                              </span>
+                            </div>
+                          </div>
+                          <p className="text-xs text-gray-700 leading-relaxed line-clamp-2">{message.text}</p>
                         </div>
                       ))}
                     </div>

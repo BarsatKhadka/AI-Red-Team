@@ -5,6 +5,7 @@ function AIReplyViewer({ reply, loading, messageData, onReplyEdit, onEditChange,
   const [isEditing, setIsEditing] = useState(false);
   const [editedReply, setEditedReply] = useState('');
   const [sectionViewer, setSectionViewer] = useState({ isVisible: false, documentType: '', section: '' });
+  const [showSendOptions, setShowSendOptions] = useState(false);
   
   // Sync with external editing state
   useEffect(() => {
@@ -194,16 +195,39 @@ function AIReplyViewer({ reply, loading, messageData, onReplyEdit, onEditChange,
         <div className="max-w-4xl mx-auto">
           {/* Original Message */}
           {messageData && (
-            <div className="mb-6 p-4 bg-blue-50 border-l-4 border-blue-500 rounded">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-xs font-semibold text-blue-800 bg-blue-200 px-2 py-1 rounded">
-                  {messageData.messageType}
-                </span>
-                <span className="text-sm font-medium text-gray-700">
-                  {messageData.memberName} - {messageData.teamName}
-                </span>
+            <div className="mb-6 bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+              <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-5 py-3 border-b border-gray-200">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-400 to-purple-400 flex items-center justify-center text-white font-semibold text-sm">
+                      {messageData.memberName.charAt(0)}
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-semibold text-gray-800">{messageData.memberName}</span>
+                        <span className="text-xs text-gray-500">sent on</span>
+                        <span className="text-xs font-medium text-gray-600">
+                          {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className={`text-xs font-medium px-2 py-0.5 rounded ${
+                          messageData.messageType === '@clarify' ? 'bg-blue-100 text-blue-700' :
+                          messageData.messageType === '@availability' ? 'bg-green-100 text-green-700' :
+                          messageData.messageType === '@progress_update' ? 'bg-yellow-100 text-yellow-700' :
+                          'bg-gray-100 text-gray-700'
+                        }`}>
+                          {messageData.messageType}
+                        </span>
+                        <span className="text-xs text-gray-500">• {messageData.teamName}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <p className="text-gray-800">{messageData.messageText}</p>
+              <div className="px-5 py-4">
+                <p className="text-sm text-gray-700 leading-relaxed">{messageData.messageText}</p>
+              </div>
             </div>
           )}
 
@@ -220,16 +244,77 @@ function AIReplyViewer({ reply, loading, messageData, onReplyEdit, onEditChange,
               {/* Action Buttons - Right side end */}
               {!isEditing && reply && messageData && (
                 <div className="flex items-center gap-2">
-                  {/* Send Button */}
-                  <button
-                    onClick={() => {
-                      const email = `${messageData.memberName.toLowerCase()}@outlook.com`;
-                      alert(`Reply sent to ${messageData.memberName} at ${email}`);
-                    }}
-                    className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 font-medium text-sm"
-                  >
-                    Send to {messageData.memberName}
-                  </button>
+                  {/* Send Options Dropdown */}
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowSendOptions(!showSendOptions)}
+                      className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 font-medium text-sm flex items-center gap-2"
+                    >
+                      <span>Send to {messageData.memberName}</span>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                    
+                    {showSendOptions && (
+                      <div className="absolute right-0 top-full mt-2 bg-white border border-gray-200 rounded-lg shadow-xl min-w-[240px] z-20 overflow-hidden">
+                        <div className="py-1.5">
+                          <button
+                            onClick={() => {
+                              const email = `${messageData.memberName.toLowerCase()}@outlook.com`;
+                              alert(`Reply sent to ${messageData.memberName} via Outlook (${email})`);
+                              setShowSendOptions(false);
+                            }}
+                            className="w-full text-left px-4 py-3 hover:bg-blue-50 flex items-center gap-3 text-sm transition-colors group"
+                          >
+                            <div className="w-8 h-8 rounded bg-blue-100 flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                              <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                              </svg>
+                            </div>
+                            <div className="flex-1">
+                              <div className="font-semibold text-gray-800">Outlook</div>
+                              <div className="text-xs text-gray-500 mt-0.5">{messageData.memberName.toLowerCase()}@outlook.com</div>
+                            </div>
+                          </button>
+                          <button
+                            onClick={() => {
+                              alert(`Reply sent to ${messageData.memberName} via Slack`);
+                              setShowSendOptions(false);
+                            }}
+                            className="w-full text-left px-4 py-3 hover:bg-purple-50 flex items-center gap-3 text-sm transition-colors group border-t border-gray-100"
+                          >
+                            <div className="w-8 h-8 rounded bg-purple-100 flex items-center justify-center group-hover:bg-purple-200 transition-colors">
+                              <svg className="w-5 h-5 text-purple-600" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52 2.527 2.527 0 0 1 2.52 2.52zM6.313 15.165a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52 2.528 2.528 0 0 1-2.521 2.523 2.528 2.528 0 0 1-2.521-2.523zm2.521-9.043A2.528 2.528 0 0 1 11.355 8.647a2.528 2.528 0 0 1-2.521 2.521 2.528 2.528 0 0 1-2.521-2.521 2.528 2.528 0 0 1 2.521-2.525zm9.043 9.043a2.528 2.528 0 0 1-2.52 2.523 2.528 2.528 0 0 1-2.521-2.523 2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.52 2.52zm2.521-9.043a2.528 2.528 0 0 1-2.525 2.525 2.528 2.528 0 0 1-2.523-2.525 2.528 2.528 0 0 1 2.523-2.521 2.528 2.528 0 0 1 2.525 2.521zM15.165 21.313a2.528 2.528 0 0 1-2.523 2.521 2.528 2.528 0 0 1-2.525-2.521 2.528 2.528 0 0 1 2.525-2.523 2.528 2.528 0 0 1 2.523 2.523zM21.313 12.042a2.528 2.528 0 0 1-2.521 2.52 2.528 2.528 0 0 1-2.523-2.52 2.528 2.528 0 0 1 2.523-2.521 2.528 2.528 0 0 1 2.521 2.521z"/>
+                              </svg>
+                            </div>
+                            <div className="flex-1">
+                              <div className="font-semibold text-gray-800">Slack</div>
+                              <div className="text-xs text-gray-500 mt-0.5">Direct message</div>
+                            </div>
+                          </button>
+                          <button
+                            onClick={() => {
+                              alert(`Reply sent to ${messageData.memberName} via Microsoft Teams`);
+                              setShowSendOptions(false);
+                            }}
+                            className="w-full text-left px-4 py-3 hover:bg-blue-50 flex items-center gap-3 text-sm transition-colors group border-t border-gray-100"
+                          >
+                            <div className="w-8 h-8 rounded bg-blue-100 flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                              <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M19.5 4.5h-15A1.5 1.5 0 0 0 3 6v12a1.5 1.5 0 0 0 1.5 1.5h15a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5zm-1.5 9h-3v3h-3v-3H9v-3h3V7.5h3V9h3v4.5z"/>
+                              </svg>
+                            </div>
+                            <div className="flex-1">
+                              <div className="font-semibold text-gray-800">Microsoft Teams</div>
+                              <div className="text-xs text-gray-500 mt-0.5">Chat message</div>
+                            </div>
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                   
                   {/* Edit Button */}
                   <button
