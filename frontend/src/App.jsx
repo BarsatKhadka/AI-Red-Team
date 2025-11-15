@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Dashboard from './pages/Dashboard';
 import StaticFilesPage from './pages/StaticFilesPage';
 import DeliverablesPage from './pages/DeliverablesPage';
+import ComponentShowcase from './pages/ComponentShowcase';
 import './styles/pages.css';
 
 function App() {
@@ -13,6 +14,8 @@ function App() {
         return <StaticFilesPage />;
       case 'deliverables':
         return <DeliverablesPage />;
+      case 'showcase':
+        return <ComponentShowcase />;
       case 'dashboard':
       default:
         return <Dashboard />;
@@ -43,6 +46,12 @@ function App() {
               className={`nav-link ${currentPage === 'deliverables' ? 'active' : ''}`}
             >
               📦 Deliverables
+            </button>
+            <button 
+              onClick={() => setCurrentPage('showcase')}
+              className={`nav-link ${currentPage === 'showcase' ? 'active' : ''}`}
+            >
+              ✨ AI Showcase
             </button>
           </div>
         </div>
