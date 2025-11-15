@@ -1,7 +1,9 @@
 import { useState } from 'react';
-import ProjectList from '../components/ProjectList';
+import ProjectsSidebar from '../components/ProjectsSidebar';
+import TeamMembersPanel from '../components/TeamMembersPanel';
 import AIReplyViewer from '../components/AIReplyViewer';
-import DocumentButtons from '../components/DocumentButtons';
+import ProjectFiles from '../components/ProjectFiles';
+import MemberBioSummary from '../components/MemberBioSummary';
 import NewProjectModal from '../components/NewProjectModal';
 
 function Dashboard() {
@@ -10,7 +12,13 @@ function Dashboard() {
   const [loading, setLoading] = useState(false);
   const [showNewProjectModal, setShowNewProjectModal] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
-  const [documents, setDocuments] = useState({});
+  const [selectedProject, setSelectedProject] = useState(null);
+  const [selectedTeam, setSelectedTeam] = useState(null);
+  const [selectedMember, setSelectedMember] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editRequested, setEditRequested] = useState(0);
+  const [saveRequested, setSaveRequested] = useState(0);
+  const [cancelRequested, setCancelRequested] = useState(0);
 
   const handleMessageSelect = (replyData, messageData) => {
     setAiReply(replyData);
@@ -29,42 +37,125 @@ function Dashboard() {
 
   const handleProjectCreated = () => {
     setShowNewProjectModal(false);
-    // Trigger refresh of project list
     setRefreshTrigger(prev => prev + 1);
   };
 
+  const handleProjectClick = (project) => {
+    setSelectedProject(project);
+    setSelectedTeam(null);
+    setSelectedMember(null);
+    setAiReply(null);
+    setCurrentMessage(null);
+  };
+
+  const handleTeamClick = (team, project) => {
+    setSelectedTeam(team);
+    setSelectedProject(project);
+    setSelectedMember(null);
+    setAiReply(null);
+    setCurrentMessage(null);
+  };
+
+  const handleMemberSelect = (member) => {
+    setSelectedMember(member);
+  };
+
+  const handleMessageClick = async (memberName, messageType, messageText, projectName, teamName) => {
+    // Find and set the selected member
+    if (selectedTeam && selectedTeam.members) {
+      const member = selectedTeam.members.find(m => m.name === memberName);
+      if (member) {
+        setSelectedMember(member);
+      }
+    }
+    
+    try {
+      const response = await fetch('http://localhost:8000/clarify-reply', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          member_name: memberName,
+          message_type: messageType,
+          message_text: messageText,
+          project_name: projectName,
+          team_name: teamName,
+          documents: {},
+        }),
+      });
+
+      const data = await response.json();
+      handleMessageSelect(data, { 
+        memberName, 
+        messageType, 
+        messageText,
+        projectName,
+        teamName 
+      });
+    } catch (error) {
+      console.error('Error getting AI reply:', error);
+    }
+  };
+
   return (
-    <div className="h-screen flex flex-col">
-      <header className="bg-blue-600 text-white p-4">
-        <h1 className="text-2xl font-bold">Project Manager Dashboard</h1>
-      </header>
-      
+    <div className="h-screen flex flex-col overflow-hidden">
       <div className="flex-1 flex overflow-hidden">
-        {/* Left Panel - Project List */}
-        <div className="w-1/2 border-r border-gray-300 bg-white">
-          <ProjectList 
-            onMessageSelect={handleMessageSelect}
+        {/* Left Panel - Projects Sidebar (narrow) */}
+        <div className="w-48 border-r border-gray-300 bg-white">
+          <ProjectsSidebar 
             onProjectSelect={handleProjectSelect}
             refreshTrigger={refreshTrigger}
-            documents={documents}
+            onProjectClick={handleProjectClick}
+            selectedProjectId={selectedProject?.id}
+            selectedTeamId={selectedTeam?.id}
+            onTeamClick={handleTeamClick}
           />
         </div>
         
-        {/* Right Panel - Document Buttons and AI Reply */}
-        <div className="w-1/2 flex flex-col bg-gray-50 overflow-hidden">
-          {/* Document Buttons - Top Right */}
-          <div className="flex-shrink-0 p-2 border-b border-gray-300 bg-white">
-            <DocumentButtons onDocumentsChange={setDocuments} />
+        {/* Middle Panel - Team Members (medium) */}
+        <div className="w-80 border-r border-gray-300 bg-white">
+          <TeamMembersPanel 
+            project={selectedProject}
+            team={selectedTeam}
+            onMemberSelect={handleMemberSelect}
+            onMessageClick={handleMessageClick}
+            documents={{}}
+          />
+        </div>
+        
+        {/* Right Panel - Project Files and AI Reply */}
+        <div className="flex-1 flex flex-col bg-gray-50 overflow-hidden">
+          {/* Project Files - Top */}
+          <div className="flex-shrink-0 border-b border-gray-300 bg-white">
+            <ProjectFiles />
           </div>
           
-          {/* AI Reply Viewer - Takes rest of space */}
-          <div className="flex-1 overflow-hidden">
-            <AIReplyViewer 
-              reply={aiReply} 
-              loading={loading}
-              messageData={currentMessage}
-              onReplyEdit={handleReplyEdit}
-            />
+          {/* AI Reply and Member Bio - Side by side */}
+          <div className="flex-1 flex overflow-hidden min-h-0 relative">
+            {/* AI Reply Viewer - Takes full space with right padding for card */}
+            <div className="flex-1 overflow-hidden pr-80">
+              <AIReplyViewer 
+                reply={aiReply} 
+                loading={loading}
+                messageData={currentMessage}
+                onReplyEdit={handleReplyEdit}
+                onEditChange={setIsEditing}
+                externalIsEditing={isEditing}
+                onEditRequest={editRequested}
+                onSaveRequest={saveRequested}
+                onCancelRequest={cancelRequested}
+              />
+            </div>
+            
+            {/* Member Bio Summary - Card on the right */}
+            <div className="absolute right-0 top-0">
+              <MemberBioSummary 
+                member={selectedMember}
+                project={selectedProject}
+                team={selectedTeam}
+              />
+            </div>
           </div>
         </div>
       </div>

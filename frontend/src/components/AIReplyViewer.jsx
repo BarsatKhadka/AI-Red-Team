@@ -1,11 +1,17 @@
 import { useState, useEffect } from 'react';
 import PDFSectionViewer from './PDFSectionViewer';
 
-function AIReplyViewer({ reply, loading, messageData, onReplyEdit }) {
+function AIReplyViewer({ reply, loading, messageData, onReplyEdit, onEditChange, externalIsEditing, onEditRequest, onSaveRequest, onCancelRequest }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editedReply, setEditedReply] = useState('');
-  const [showSendOptions, setShowSendOptions] = useState(false);
   const [sectionViewer, setSectionViewer] = useState({ isVisible: false, documentType: '', section: '' });
+  
+  // Sync with external editing state
+  useEffect(() => {
+    if (externalIsEditing !== undefined) {
+      setIsEditing(externalIsEditing);
+    }
+  }, [externalIsEditing]);
 
   useEffect(() => {
     if (reply) {
@@ -15,7 +21,47 @@ function AIReplyViewer({ reply, loading, messageData, onReplyEdit }) {
 
   const handleEdit = () => {
     setIsEditing(true);
+    if (onEditChange) {
+      onEditChange(true);
+    }
   };
+  
+  // Handle external edit request
+  useEffect(() => {
+    if (onEditRequest && onEditRequest > 0) {
+      setIsEditing(true);
+      if (onEditChange) {
+        onEditChange(true);
+      }
+    }
+  }, [onEditRequest, onEditChange]);
+  
+  // Handle external save request
+  useEffect(() => {
+    if (onSaveRequest && onSaveRequest > 0 && isEditing) {
+      if (onReplyEdit) {
+        onReplyEdit({
+          ...reply,
+          reply: editedReply
+        });
+      }
+      setIsEditing(false);
+      if (onEditChange) {
+        onEditChange(false);
+      }
+    }
+  }, [onSaveRequest, isEditing, reply, editedReply, onReplyEdit, onEditChange]);
+  
+  // Handle external cancel request
+  useEffect(() => {
+    if (onCancelRequest && onCancelRequest > 0 && isEditing) {
+      setEditedReply(reply?.reply || '');
+      setIsEditing(false);
+      if (onEditChange) {
+        onEditChange(false);
+      }
+    }
+  }, [onCancelRequest, isEditing, reply, onEditChange]);
 
   const handleSave = () => {
     if (onReplyEdit) {
@@ -25,30 +71,17 @@ function AIReplyViewer({ reply, loading, messageData, onReplyEdit }) {
       });
     }
     setIsEditing(false);
+    if (onEditChange) {
+      onEditChange(false);
+    }
   };
 
   const handleCancel = () => {
     setEditedReply(reply?.reply || '');
     setIsEditing(false);
-  };
-
-  const getMemberEmail = (memberName) => {
-    return `${memberName.toLowerCase()}@outlook.com`;
-  };
-
-  const handleSendEmail = async () => {
-    if (!messageData) return;
-    const email = getMemberEmail(messageData.memberName);
-    // Mock send - in real app, this would call backend API
-    alert(`Reply sent to ${messageData.memberName} at ${email}`);
-    setShowSendOptions(false);
-  };
-
-  const handleSendSlack = async () => {
-    if (!messageData) return;
-    // Mock send - in real app, this would call backend API
-    alert(`Reply sent to ${messageData.memberName} via Slack`);
-    setShowSendOptions(false);
+    if (onEditChange) {
+      onEditChange(false);
+    }
   };
 
   // Parse reply text and add View buttons for section references
@@ -176,11 +209,37 @@ function AIReplyViewer({ reply, loading, messageData, onReplyEdit }) {
 
           {/* AI Reply */}
           <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-                <span className="text-white font-bold text-sm">AI</span>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">AI</span>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-800">AI Assistant Reply</h3>
               </div>
-              <h3 className="text-lg font-semibold text-gray-800">AI Assistant Reply</h3>
+              
+              {/* Action Buttons - Right side end */}
+              {!isEditing && reply && messageData && (
+                <div className="flex items-center gap-2">
+                  {/* Send Button */}
+                  <button
+                    onClick={() => {
+                      const email = `${messageData.memberName.toLowerCase()}@outlook.com`;
+                      alert(`Reply sent to ${messageData.memberName} at ${email}`);
+                    }}
+                    className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 font-medium text-sm"
+                  >
+                    Send to {messageData.memberName}
+                  </button>
+                  
+                  {/* Edit Button */}
+                  <button
+                    onClick={handleEdit}
+                    className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 font-medium"
+                  >
+                    Edit
+                  </button>
+                </div>
+              )}
             </div>
           
           {isEditing ? (
@@ -228,68 +287,6 @@ function AIReplyViewer({ reply, loading, messageData, onReplyEdit }) {
           </div>
         </div>
       </div>
-      
-      {/* Action Buttons - Fixed at bottom right */}
-      {!isEditing && reply && messageData && (
-        <div className="flex-shrink-0 border-t border-gray-300 bg-gray-50 p-4">
-          <div className="max-w-4xl mx-auto flex items-center justify-end gap-3">
-            {/* Send Options */}
-            <div className="relative">
-              <button
-                onClick={() => setShowSendOptions(!showSendOptions)}
-                className="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 font-medium"
-              >
-                Send to {messageData.memberName}
-              </button>
-              
-              {showSendOptions && (
-                <div className="absolute bottom-full right-0 mb-2 bg-white border border-gray-300 rounded-lg shadow-lg p-2 min-w-[200px]">
-                  <button
-                    onClick={handleSendEmail}
-                    className="w-full text-left px-4 py-2 hover:bg-gray-100 rounded text-sm"
-                  >
-                    📧 Email ({getMemberEmail(messageData.memberName)})
-                  </button>
-                  <button
-                    onClick={handleSendSlack}
-                    className="w-full text-left px-4 py-2 hover:bg-gray-100 rounded text-sm"
-                  >
-                    💬 Slack
-                  </button>
-                </div>
-              )}
-            </div>
-            
-            {/* Big Edit Button */}
-            <button
-              onClick={handleEdit}
-              className="px-8 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 font-medium text-lg"
-            >
-              Edit
-            </button>
-          </div>
-        </div>
-      )}
-      
-      {/* Edit Mode Save/Cancel */}
-      {isEditing && (
-        <div className="flex-shrink-0 border-t border-gray-300 bg-gray-50 p-4">
-          <div className="max-w-4xl mx-auto flex gap-3 justify-end">
-            <button
-              onClick={handleCancel}
-              className="px-6 py-3 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 font-medium"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleSave}
-              className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 font-medium"
-            >
-              Save
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
