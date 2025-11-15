@@ -20,30 +20,41 @@ function ProjectFiles() {
 
   return (
     <div className="relative bg-white">
-      <div className="flex items-center justify-between p-4">
-        <div className="flex items-center gap-3">
-          <span className="text-base font-semibold text-gray-800">Project Files</span>
-          <span className="px-2.5 py-1 bg-blue-100 text-blue-700 rounded-md text-sm font-semibold">
-            {fileCount}
-          </span>
-          <span className="text-sm text-green-600 font-medium">Updated</span>
-        </div>
-        
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-700 flex items-center gap-2 transition-colors"
-        >
-          <span>View All Files</span>
-          <svg 
-            className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`}
-            fill="none" 
-            stroke="currentColor" 
-            viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
-        </button>
-      </div>
+          <div className="flex items-center justify-between p-4">
+            <div className="flex items-center gap-3">
+              <span className="text-base font-semibold text-gray-800">Project Files</span>
+              <span className="px-2.5 py-1 bg-blue-100 text-blue-700 rounded-md text-sm font-semibold">
+                {fileCount}
+              </span>
+              <span className="text-sm text-green-600 font-medium">Updated</span>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <button
+                className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-medium flex items-center gap-2 transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                <span>New File</span>
+              </button>
+              
+              <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-700 flex items-center gap-2 transition-colors"
+              >
+                <span>View All Files</span>
+                <svg 
+                  className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+            </div>
+          </div>
 
       {/* Dropdown */}
       {isOpen && (
