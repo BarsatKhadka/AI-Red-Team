@@ -107,9 +107,9 @@ function MemberBioSummary({ member, project, team }) {
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <h3 className="text-sm font-semibold text-gray-800">AI-Generated Profile</h3>
+            <h3 className="text-sm font-semibold text-gray-800">{member.name} (Profile analysis with ai)</h3>
             <span className="text-xs text-gray-400">•</span>
-            <p className="text-xs text-gray-500">{member.name} • {team?.name || 'Team'}</p>
+            <p className="text-xs text-gray-500">{team?.name || 'Team'}</p>
           </div>
           
           <div className="text-xs text-gray-700 leading-relaxed space-y-1">
@@ -125,11 +125,11 @@ function MemberBioSummary({ member, project, team }) {
           </div>
         </div>
         
-        {/* AI Analysis - Right Side */}
+        {/* Comments - Right Side */}
         {insights.length > 0 && (
           <div className="flex-shrink-0 ml-auto">
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded px-3 py-2 border border-blue-100">
-              <p className="text-blue-800 font-semibold text-xs mb-0.5">AI Analysis:</p>
+              <p className="text-blue-800 font-semibold text-xs mb-0.5">Comments:</p>
               <p className="text-blue-900 text-xs">{insights.join('; ').toLowerCase()}.</p>
             </div>
           </div>

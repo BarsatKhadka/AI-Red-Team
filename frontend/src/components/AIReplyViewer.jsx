@@ -221,18 +221,20 @@ function AIReplyViewer({ reply, loading, messageData, onReplyEdit, onEditChange,
                         </span>
                         <span className="text-xs text-gray-500">• {messageData.teamName}</span>
                       </div>
-                      {messageData.messageSource && (
-                        <div className="flex items-center gap-1.5 mt-1.5">
-                          <span className="text-xs text-gray-500">Sent from</span>
-                          <span className="text-xs font-medium text-gray-700 capitalize">{messageData.messageSource}</span>
-                          <span className="text-xs text-gray-400">•</span>
-                          <span className="text-xs text-blue-600 font-medium">
-                            {messageData.memberName.toLowerCase()}@{messageData.messageSource === 'outlook' ? 'outlook.com' : messageData.messageSource === 'slack' ? 'slack.com' : 'teams.microsoft.com'}
-                          </span>
-                        </div>
-                      )}
                     </div>
                   </div>
+                  
+                  {/* Sent from - Right Side */}
+                  {messageData.messageSource && (
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xs text-gray-500">Sent from</span>
+                      <span className="text-xs font-medium text-gray-700 capitalize">{messageData.messageSource}</span>
+                      <span className="text-xs text-gray-400">•</span>
+                      <span className="text-xs text-blue-600 font-medium">
+                        {messageData.memberName.toLowerCase()}@{messageData.messageSource === 'outlook' ? 'outlook.com' : messageData.messageSource === 'slack' ? 'slack.com' : 'teams.microsoft.com'}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
               <div className="px-5 py-4">
