@@ -57,8 +57,14 @@ function Dashboard() {
     setCurrentMessage(null);
   };
 
-  const handleMemberSelect = (member) => {
+  const handleMemberSelect = (member, team, project) => {
     setSelectedMember(member);
+    if (team) {
+      setSelectedTeam(team);
+    }
+    if (project) {
+      setSelectedProject(project);
+    }
   };
 
   const handleMessageClick = async (memberName, messageType, messageText, projectName, teamName, messageSource) => {
@@ -103,7 +109,7 @@ function Dashboard() {
   return (
     <div className="h-screen flex flex-col overflow-hidden">
       <div className="flex-1 flex overflow-hidden">
-        {/* Left Panel - Projects Sidebar (narrow) */}
+        {/* Left Panel - Projects Sidebar */}
         <div className="w-48 border-r border-gray-300 bg-white">
           <ProjectsSidebar 
             onProjectSelect={handleProjectSelect}
@@ -111,24 +117,27 @@ function Dashboard() {
             onProjectClick={handleProjectClick}
             selectedProjectId={selectedProject?.id}
             selectedTeamId={selectedTeam?.id}
+            selectedMemberId={selectedMember?.id}
             onTeamClick={handleTeamClick}
+            onMemberClick={handleMemberSelect}
           />
         </div>
         
-        {/* Middle Panel - Team Members (medium) */}
+        {/* Middle Panel - Team Members */}
         <div className="w-80 border-r border-gray-300 bg-white">
           <TeamMembersPanel 
             project={selectedProject}
             team={selectedTeam}
+            selectedMemberId={selectedMember?.id}
             onMemberSelect={handleMemberSelect}
             onMessageClick={handleMessageClick}
             documents={{}}
           />
         </div>
         
-        {/* Right Panel - Project Files, Member Bio, and AI Reply */}
+        {/* Main Content Area */}
         <div className="flex-1 flex bg-gray-50 overflow-hidden">
-          {/* Main Content Area */}
+          {/* Main Content */}
           <div className="flex-1 flex flex-col overflow-hidden">
             {/* Project Files - Top */}
             <div className="flex-shrink-0 border-b border-gray-300 bg-white">
@@ -144,7 +153,7 @@ function Dashboard() {
               />
             </div>
             
-            {/* AI Reply Viewer - Below Member Bio */}
+            {/* AI Reply Viewer */}
             <div className="flex-1 overflow-hidden">
               <AIReplyViewer 
                 reply={aiReply} 
@@ -177,4 +186,3 @@ function Dashboard() {
 }
 
 export default Dashboard;
-

@@ -24,9 +24,8 @@ function ProjectFiles() {
             <div className="flex items-center gap-3">
               <span className="text-base font-semibold text-gray-800">Project Files</span>
               <span className="px-2.5 py-1 bg-blue-100 text-blue-700 rounded-md text-sm font-semibold">
-                {fileCount}
+                Total files: {fileCount}
               </span>
-              <span className="text-sm text-green-600 font-medium">Updated</span>
             </div>
             
             <div className="flex items-center gap-2">

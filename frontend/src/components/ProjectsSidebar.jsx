@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react';
 
 const API_BASE_URL = 'http://localhost:8000';
 
-function ProjectsSidebar({ onProjectSelect, refreshTrigger, onProjectClick, selectedProjectId, selectedTeamId, onTeamClick }) {
+function ProjectsSidebar({ onProjectSelect, refreshTrigger, onProjectClick, selectedProjectId, selectedTeamId, selectedMemberId, onTeamClick, onMemberClick }) {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [expandedProjects, setExpandedProjects] = useState(new Set());
+  const [expandedTeams, setExpandedTeams] = useState(new Set());
 
   useEffect(() => {
     fetchProjects();
@@ -41,6 +42,12 @@ function ProjectsSidebar({ onProjectSelect, refreshTrigger, onProjectClick, sele
     const newExpanded = new Set(expandedProjects);
     if (newExpanded.has(project.id)) {
       newExpanded.delete(project.id);
+      // Also collapse all teams when collapsing project
+      const newExpandedTeams = new Set();
+      project.teams?.forEach(team => {
+        newExpandedTeams.delete(`${project.id}-${team.id}`);
+      });
+      setExpandedTeams(newExpandedTeams);
     } else {
       newExpanded.add(project.id);
     }
@@ -50,8 +57,23 @@ function ProjectsSidebar({ onProjectSelect, refreshTrigger, onProjectClick, sele
 
   const handleTeamClick = (team, project, e) => {
     e.stopPropagation();
+    const teamKey = `${project.id}-${team.id}`;
+    const newExpanded = new Set(expandedTeams);
+    if (newExpanded.has(teamKey)) {
+      newExpanded.delete(teamKey);
+    } else {
+      newExpanded.add(teamKey);
+    }
+    setExpandedTeams(newExpanded);
     if (onTeamClick) {
       onTeamClick(team, project);
+    }
+  };
+
+  const handleMemberClick = (member, team, project, e) => {
+    e.stopPropagation();
+    if (onMemberClick) {
+      onMemberClick(member, team, project);
     }
   };
 
@@ -121,18 +143,48 @@ function ProjectsSidebar({ onProjectSelect, refreshTrigger, onProjectClick, sele
                 {isExpanded && project.teams && project.teams.length > 0 && (
                   <div className="ml-4 space-y-0.5 mt-0.5">
                     {project.teams.map((team) => {
+                      const teamKey = `${project.id}-${team.id}`;
+                      const isTeamExpanded = expandedTeams.has(teamKey);
                       const isSelected = selectedTeamId === team.id;
                       return (
-                        <div
-                          key={team.id}
-                          onClick={(e) => handleTeamClick(team, project, e)}
-                          className={`py-1 px-2 cursor-pointer rounded text-sm ${
-                            isSelected
-                              ? 'bg-blue-50 text-blue-700 font-medium'
-                              : 'text-gray-700 hover:bg-gray-50'
-                          }`}
-                        >
-                          {team.name}
+                        <div key={team.id}>
+                          <div
+                            onClick={(e) => handleTeamClick(team, project, e)}
+                            className={`py-1 px-2 cursor-pointer rounded text-sm transition-colors ${
+                              isSelected
+                                ? 'bg-blue-50 text-blue-700 font-medium'
+                                : 'text-gray-700 hover:bg-gray-50'
+                            }`}
+                          >
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-gray-500">
+                                {isTeamExpanded ? '▼' : '▶'}
+                              </span>
+                              <span>{team.name}</span>
+                            </div>
+                          </div>
+                          
+                          {/* Members - Shown when team is expanded */}
+                          {isTeamExpanded && team.members && team.members.length > 0 && (
+                            <div className="ml-6 space-y-0.5 mt-0.5">
+                              {team.members.map((member) => {
+                                const isSelected = selectedMemberId === member.id;
+                                return (
+                                  <div
+                                    key={member.id}
+                                    onClick={(e) => handleMemberClick(member, team, project, e)}
+                                    className={`py-1 px-2 text-xs rounded cursor-pointer transition-colors ${
+                                      isSelected
+                                        ? 'bg-blue-100 text-blue-700 font-medium'
+                                        : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
+                                    }`}
+                                  >
+                                    👤 {member.name}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
                         </div>
                       );
                     })}
@@ -148,4 +200,3 @@ function ProjectsSidebar({ onProjectSelect, refreshTrigger, onProjectClick, sele
 }
 
 export default ProjectsSidebar;
-
