@@ -61,7 +61,7 @@ function Dashboard() {
     setSelectedMember(member);
   };
 
-  const handleMessageClick = async (memberName, messageType, messageText, projectName, teamName) => {
+  const handleMessageClick = async (memberName, messageType, messageText, projectName, teamName, messageSource) => {
     // Find and set the selected member
     if (selectedTeam && selectedTeam.members) {
       const member = selectedTeam.members.find(m => m.name === memberName);
@@ -92,7 +92,8 @@ function Dashboard() {
         messageType, 
         messageText,
         projectName,
-        teamName 
+        teamName,
+        messageSource: messageSource || 'outlook'
       });
     } catch (error) {
       console.error('Error getting AI reply:', error);

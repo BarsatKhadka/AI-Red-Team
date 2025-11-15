@@ -61,7 +61,7 @@ function TeamMembersPanel({ project, team, onMemberSelect, onMessageClick, docum
                     // If member has messages, show the first one
                     if (hasMessages && member.messages.length > 0) {
                       const firstMessage = member.messages[0];
-                      onMessageClick(member.name, firstMessage.type, firstMessage.text, project.name, team.name, documents);
+                      onMessageClick(member.name, firstMessage.type, firstMessage.text, project.name, team.name, firstMessage.source || 'outlook', documents);
                     }
                   }}
                 >
@@ -87,12 +87,12 @@ function TeamMembersPanel({ project, team, onMemberSelect, onMessageClick, docum
                             if (onMemberSelect) {
                               onMemberSelect(member);
                             }
-                            onMessageClick(member.name, message.type, message.text, project.name, team.name, documents);
+                            onMessageClick(member.name, message.type, message.text, project.name, team.name, message.source || 'outlook', documents);
                           }}
                           className="p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:shadow-sm cursor-pointer transition-all"
                         >
                           <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 flex-wrap">
                               <span className={`text-xs font-medium px-2 py-1 rounded ${getMessageTypeColor(message.type)}`}>
                                 {message.type}
                               </span>
@@ -101,6 +101,18 @@ function TeamMembersPanel({ project, team, onMemberSelect, onMessageClick, docum
                               </span>
                             </div>
                           </div>
+                          {message.source && (
+                            <div className="mb-2">
+                              <span className="text-xs text-gray-500 flex items-center gap-1.5">
+                                <span className="text-gray-400">Sent from</span>
+                                <span className="font-medium text-gray-600 capitalize">{message.source}</span>
+                                <span className="text-gray-400">•</span>
+                                <span className="text-blue-600 font-medium">
+                                  {member.name.toLowerCase()}@{message.source === 'outlook' ? 'outlook.com' : message.source === 'slack' ? 'slack.com' : 'teams.microsoft.com'}
+                                </span>
+                              </span>
+                            </div>
+                          )}
                           <p className="text-xs text-gray-700 leading-relaxed line-clamp-2">{message.text}</p>
                         </div>
                       ))}

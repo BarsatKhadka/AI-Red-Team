@@ -210,7 +210,7 @@ function AIReplyViewer({ reply, loading, messageData, onReplyEdit, onEditChange,
                           {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                         </span>
                       </div>
-                      <div className="flex items-center gap-2 mt-0.5">
+                      <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                         <span className={`text-xs font-medium px-2 py-0.5 rounded ${
                           messageData.messageType === '@clarify' ? 'bg-blue-100 text-blue-700' :
                           messageData.messageType === '@availability' ? 'bg-green-100 text-green-700' :
@@ -221,6 +221,16 @@ function AIReplyViewer({ reply, loading, messageData, onReplyEdit, onEditChange,
                         </span>
                         <span className="text-xs text-gray-500">• {messageData.teamName}</span>
                       </div>
+                      {messageData.messageSource && (
+                        <div className="flex items-center gap-1.5 mt-1.5">
+                          <span className="text-xs text-gray-500">Sent from</span>
+                          <span className="text-xs font-medium text-gray-700 capitalize">{messageData.messageSource}</span>
+                          <span className="text-xs text-gray-400">•</span>
+                          <span className="text-xs text-blue-600 font-medium">
+                            {messageData.memberName.toLowerCase()}@{messageData.messageSource === 'outlook' ? 'outlook.com' : messageData.messageSource === 'slack' ? 'slack.com' : 'teams.microsoft.com'}
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
