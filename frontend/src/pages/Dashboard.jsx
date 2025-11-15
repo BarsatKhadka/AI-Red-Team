@@ -110,7 +110,7 @@ function Dashboard() {
     <div className="h-screen flex flex-col overflow-hidden">
       <div className="flex-1 flex overflow-hidden">
         {/* Left Panel - Projects Sidebar */}
-        <div className="w-48 border-r border-gray-300 bg-white">
+        <div className="w-56 border-r border-gray-300 bg-white">
           <ProjectsSidebar 
             onProjectSelect={handleProjectSelect}
             refreshTrigger={refreshTrigger}
@@ -145,7 +145,7 @@ function Dashboard() {
             </div>
             
             {/* Member Bio Summary - Directly below Project Files */}
-            <div className="flex-shrink-0 border-b border-gray-300 bg-white px-4 py-3">
+            <div className="flex-shrink-0 border-b border-gray-300 bg-white px-6 py-3">
               <MemberBioSummary 
                 member={selectedMember}
                 project={selectedProject}

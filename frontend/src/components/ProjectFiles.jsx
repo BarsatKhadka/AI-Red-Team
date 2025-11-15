@@ -20,7 +20,7 @@ function ProjectFiles() {
 
   return (
     <div className="relative bg-white">
-          <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200">
+          <div className="h-16 flex items-center justify-between px-6 border-b border-gray-200">
             <div className="flex items-center gap-3">
               <span className="text-base font-semibold text-gray-800">Project Files</span>
               <span className="px-2.5 py-1 bg-blue-100 text-blue-700 rounded-md text-sm font-semibold">
