@@ -4,6 +4,7 @@ import TeamMembersPanel from '../components/TeamMembersPanel';
 import AIReplyViewer from '../components/AIReplyViewer';
 import ProjectFiles from '../components/ProjectFiles';
 import MemberBioSummary from '../components/MemberBioSummary';
+import SuggestionBox from '../components/SuggestionBox';
 import NewProjectModal from '../components/NewProjectModal';
 
 function Dashboard() {
@@ -125,34 +126,42 @@ function Dashboard() {
         </div>
         
         {/* Right Panel - Project Files, Member Bio, and AI Reply */}
-        <div className="flex-1 flex flex-col bg-gray-50 overflow-hidden">
-          {/* Project Files - Top */}
-          <div className="flex-shrink-0 border-b border-gray-300 bg-white">
-            <ProjectFiles />
+        <div className="flex-1 flex bg-gray-50 overflow-hidden">
+          {/* Main Content Area */}
+          <div className="flex-1 flex flex-col overflow-hidden">
+            {/* Project Files - Top */}
+            <div className="flex-shrink-0 border-b border-gray-300 bg-white">
+              <ProjectFiles />
+            </div>
+            
+            {/* Member Bio Summary - Directly below Project Files */}
+            <div className="flex-shrink-0 border-b border-gray-300 bg-white px-4 py-3">
+              <MemberBioSummary 
+                member={selectedMember}
+                project={selectedProject}
+                team={selectedTeam}
+              />
+            </div>
+            
+            {/* AI Reply Viewer - Below Member Bio */}
+            <div className="flex-1 overflow-hidden">
+              <AIReplyViewer 
+                reply={aiReply} 
+                loading={loading}
+                messageData={currentMessage}
+                onReplyEdit={handleReplyEdit}
+                onEditChange={setIsEditing}
+                externalIsEditing={isEditing}
+                onEditRequest={editRequested}
+                onSaveRequest={saveRequested}
+                onCancelRequest={cancelRequested}
+              />
+            </div>
           </div>
           
-          {/* Member Bio Summary - Directly below Project Files */}
-          <div className="flex-shrink-0 border-b border-gray-300 bg-white px-4 py-3">
-            <MemberBioSummary 
-              member={selectedMember}
-              project={selectedProject}
-              team={selectedTeam}
-            />
-          </div>
-          
-          {/* AI Reply Viewer - Below Member Bio */}
-          <div className="flex-1 overflow-hidden">
-            <AIReplyViewer 
-              reply={aiReply} 
-              loading={loading}
-              messageData={currentMessage}
-              onReplyEdit={handleReplyEdit}
-              onEditChange={setIsEditing}
-              externalIsEditing={isEditing}
-              onEditRequest={editRequested}
-              onSaveRequest={saveRequested}
-              onCancelRequest={cancelRequested}
-            />
+          {/* Suggestion Box - Right Side */}
+          <div className="w-80 border-l border-gray-300 flex-shrink-0">
+            <SuggestionBox />
           </div>
         </div>
       </div>

@@ -54,6 +54,10 @@ class MemberCreate(BaseModel):
     project_id: int
 
 
+class AgentActionRequest(BaseModel):
+    request: str
+
+
 @app.get("/")
 def root():
     return {"message": "Mock Team Message System API"}
@@ -220,4 +224,171 @@ def approve_action(request: MessageRequest):
 def reject_action(request: MessageRequest):
     """Mock endpoint to reject an action."""
     return {"status": "rejected", "message": request.message}
+
+
+# Agent Suggestion Endpoints
+@app.post("/agent/suggestions/weekly-schedule")
+def generate_weekly_schedule():
+    """Generate a mock weekly schedule."""
+    return {
+        "type": "text",
+        "text": """Weekly Schedule Generated
+
+Monday - Wednesday:
+- Team standup: 9:00 AM
+- Development sprint work
+- Code reviews scheduled
+
+Thursday:
+- Mid-week check-in: 2:00 PM
+- Documentation updates
+- Testing phase begins
+
+Friday:
+- Weekly retrospective: 3:00 PM
+- Planning for next week
+- Deployment preparation
+
+This schedule is based on current project timeline and team availability."""
+    }
+
+
+@app.post("/agent/suggestions/progress-summary")
+def summarize_progress():
+    """Generate a mock progress summary."""
+    return {
+        "type": "text",
+        "text": """Progress Summary
+
+Overall Completion: 68%
+- Backend Team: 75% complete
+- Frontend Team: 62% complete
+
+Key Achievements:
+✓ API endpoints implemented
+✓ Authentication system deployed
+✓ UI components library created
+
+Current Blockers:
+- 2 tasks waiting on external API access
+- 1 design review pending
+
+Next Steps:
+- Complete integration testing
+- Finalize documentation
+- Prepare for deployment"""
+    }
+
+
+@app.post("/agent/suggestions/announcement")
+def draft_announcement():
+    """Generate a mock team announcement."""
+    return {
+        "type": "text",
+        "text": """Team Announcement Draft
+
+Subject: Weekly Update & Upcoming Milestones
+
+Hi Team,
+
+This week we've made significant progress on the project. We're currently at 68% completion and on track for our Q1 deadline.
+
+Key Updates:
+- Backend infrastructure is 75% complete
+- Frontend components are being finalized
+- Testing phase begins next week
+
+Action Items:
+- Please update your availability for next sprint
+- Review the new API documentation
+- Submit any blockers by EOD Friday
+
+Let's keep up the great work!
+
+Best regards,
+Project Management Team"""
+    }
+
+
+@app.post("/agent/suggestions/availability-report")
+def create_availability_report():
+    """Generate a mock availability report."""
+    return {
+        "type": "text",
+        "text": """Team Availability Report
+
+Week of [Current Week]
+
+Team Member Availability:
+- Alice: 10 hours/week available
+- Bob: 15 hours/week available
+- Charlie: 12 hours/week available
+- Dana: 8 hours/week available
+
+Total Team Capacity: 45 hours/week
+
+Recommendations:
+- Schedule critical tasks during high-availability periods
+- Consider redistributing workload for optimal coverage
+- Plan for upcoming time-off requests"""
+    }
+
+
+@app.post("/agent/suggestions/blocker-escalation")
+def draft_blocker_escalation():
+    """Generate a mock blocker escalation note."""
+    return {
+        "type": "text",
+        "text": """Blocker Escalation Note
+
+Priority: High
+Date: [Current Date]
+
+Issue Summary:
+Task 10 is currently blocked due to missing API keys for external service integration.
+
+Impact:
+- Delays integration testing phase
+- Affects 3 dependent tasks
+- May impact Q1 deadline
+
+Requested Action:
+- Obtain API credentials from external vendor
+- Alternative: Provide mock service for development
+
+Escalated To:
+- Technical Lead
+- Project Manager
+- External Vendor Contact
+
+Expected Resolution: [Date + 2 days]"""
+    }
+
+
+@app.post("/agent/action")
+def agent_action(request: AgentActionRequest):
+    """Handle freeform agent requests."""
+    request_lower = request.request.lower()
+    
+    # Simple keyword-based routing for mock responses
+    if "schedule" in request_lower or "calendar" in request_lower:
+        return {
+            "type": "text",
+            "text": "I've analyzed the team's schedule. Based on current availability and project timeline, I recommend scheduling the sprint planning for Thursday at 2 PM when most team members are available."
+        }
+    elif "report" in request_lower or "summary" in request_lower:
+        return {
+            "type": "text",
+            "text": "Here's a summary of the current project status: 68% complete overall, with backend at 75% and frontend at 62%. Two blockers identified, both expected to be resolved within 2 days."
+        }
+    elif "blocker" in request_lower or "issue" in request_lower:
+        return {
+            "type": "text",
+            "text": "I've identified 2 active blockers: Task 10 is waiting on API keys, and Task 15 has a pending design review. Both have been escalated to the appropriate teams."
+        }
+    else:
+        return {
+            "type": "text",
+            "text": f"I've processed your request: '{request.request}'. Based on the current project data and team status, I recommend reviewing the project documentation and coordinating with team leads for specific actions. Would you like me to generate a detailed action plan?"
+        }
 
