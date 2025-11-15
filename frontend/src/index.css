@@ -40,9 +40,9 @@ body {
   margin: 0 auto;
   padding: 16px 24px;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
-  gap: 20px;
+  gap: 32px;
   flex-wrap: wrap;
 }
 
@@ -59,6 +59,7 @@ body {
 .nav-links {
   display: flex;
   gap: 8px;
+  margin-left: 440px;
 }
 
 .nav-link {

@@ -122,15 +122,18 @@ function MemberBioSummary({ member, project, team }) {
               Available <span className="font-semibold">{bioData.weeklyHours} hours/week</span>. 
               {' '}{bioData.messagesCount} message{bioData.messagesCount !== 1 ? 's' : ''}, {bioData.progressCount} progress update{bioData.progressCount !== 1 ? 's' : ''}, {bioData.clarifyCount} clarification{bioData.clarifyCount !== 1 ? 's' : ''}.
             </p>
-            
-            {insights.length > 0 && (
-              <div className="inline-block bg-gradient-to-r from-blue-50 to-indigo-50 rounded px-2 py-1.5 border border-blue-100 mt-1">
-                <p className="text-blue-800 font-semibold text-xs mb-0.5">AI Analysis:</p>
-                <p className="text-blue-900 text-xs">{insights.join('; ').toLowerCase()}.</p>
-              </div>
-            )}
           </div>
         </div>
+        
+        {/* AI Analysis - Right Side */}
+        {insights.length > 0 && (
+          <div className="flex-shrink-0 ml-auto">
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded px-3 py-2 border border-blue-100">
+              <p className="text-blue-800 font-semibold text-xs mb-0.5">AI Analysis:</p>
+              <p className="text-blue-900 text-xs">{insights.join('; ').toLowerCase()}.</p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
