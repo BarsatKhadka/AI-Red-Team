@@ -124,38 +124,35 @@ function Dashboard() {
           />
         </div>
         
-        {/* Right Panel - Project Files and AI Reply */}
+        {/* Right Panel - Project Files, Member Bio, and AI Reply */}
         <div className="flex-1 flex flex-col bg-gray-50 overflow-hidden">
           {/* Project Files - Top */}
           <div className="flex-shrink-0 border-b border-gray-300 bg-white">
             <ProjectFiles />
           </div>
           
-          {/* AI Reply and Member Bio - Side by side */}
-          <div className="flex-1 flex overflow-hidden min-h-0 relative">
-            {/* AI Reply Viewer - Takes full space with right padding for card */}
-            <div className="flex-1 overflow-hidden pr-80">
-              <AIReplyViewer 
-                reply={aiReply} 
-                loading={loading}
-                messageData={currentMessage}
-                onReplyEdit={handleReplyEdit}
-                onEditChange={setIsEditing}
-                externalIsEditing={isEditing}
-                onEditRequest={editRequested}
-                onSaveRequest={saveRequested}
-                onCancelRequest={cancelRequested}
-              />
-            </div>
-            
-            {/* Member Bio Summary - Card on the right */}
-            <div className="absolute right-0 top-0">
-              <MemberBioSummary 
-                member={selectedMember}
-                project={selectedProject}
-                team={selectedTeam}
-              />
-            </div>
+          {/* Member Bio Summary - Directly below Project Files */}
+          <div className="flex-shrink-0 border-b border-gray-300 bg-white px-4 py-3">
+            <MemberBioSummary 
+              member={selectedMember}
+              project={selectedProject}
+              team={selectedTeam}
+            />
+          </div>
+          
+          {/* AI Reply Viewer - Below Member Bio */}
+          <div className="flex-1 overflow-hidden">
+            <AIReplyViewer 
+              reply={aiReply} 
+              loading={loading}
+              messageData={currentMessage}
+              onReplyEdit={handleReplyEdit}
+              onEditChange={setIsEditing}
+              externalIsEditing={isEditing}
+              onEditRequest={editRequested}
+              onSaveRequest={saveRequested}
+              onCancelRequest={cancelRequested}
+            />
           </div>
         </div>
       </div>

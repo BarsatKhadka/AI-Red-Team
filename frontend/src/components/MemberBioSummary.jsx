@@ -100,39 +100,37 @@ function MemberBioSummary({ member, project, team }) {
   const insights = generateInsights();
 
   return (
-    <div className="mt-4 mr-4">
-      <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 w-80">
-        <div className="mb-4">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-purple-400 flex items-center justify-center text-white font-bold text-sm">
-              {member.name.charAt(0)}
-            </div>
-            <div>
-              <h3 className="text-sm font-semibold text-gray-800">AI-Generated Profile</h3>
-              <p className="text-xs text-gray-500">{member.name} • {team?.name || 'Team'}</p>
-            </div>
+    <div className="w-full">
+      <div className="flex items-start gap-3">
+        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-purple-400 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+          {member.name.charAt(0)}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <h3 className="text-sm font-semibold text-gray-800">AI-Generated Profile</h3>
+            <span className="text-xs text-gray-400">•</span>
+            <p className="text-xs text-gray-500">{member.name} • {team?.name || 'Team'}</p>
+          </div>
+          
+          <div className="text-xs text-gray-700 leading-relaxed space-y-1">
+            <p>
+              <span className="font-semibold text-gray-800">Status:</span> {bioData.currentActivity}. 
+              {' '}<span className="font-semibold text-blue-600">{bioData.completionPercent}%</span> complete ({bioData.completedTasks}/{bioData.totalTasks} tasks).
+            </p>
+            
+            <p>
+              Available <span className="font-semibold">{bioData.weeklyHours} hours/week</span>. 
+              {' '}{bioData.messagesCount} message{bioData.messagesCount !== 1 ? 's' : ''}, {bioData.progressCount} progress update{bioData.progressCount !== 1 ? 's' : ''}, {bioData.clarifyCount} clarification{bioData.clarifyCount !== 1 ? 's' : ''}.
+            </p>
+            
+            {insights.length > 0 && (
+              <div className="inline-block bg-gradient-to-r from-blue-50 to-indigo-50 rounded px-2 py-1.5 border border-blue-100 mt-1">
+                <p className="text-blue-800 font-semibold text-xs mb-0.5">AI Analysis:</p>
+                <p className="text-blue-900 text-xs">{insights.join('; ').toLowerCase()}.</p>
+              </div>
+            )}
           </div>
         </div>
-
-        <div className="text-xs text-gray-700 leading-relaxed space-y-2 mb-4">
-          <p>
-            <span className="font-semibold text-gray-800">Current Status:</span> {bioData.currentActivity}. 
-            {' '}Progress: <span className="font-semibold text-blue-600">{bioData.completionPercent}%</span> complete ({bioData.completedTasks}/{bioData.totalTasks} tasks).
-          </p>
-          
-          <p>
-            Available <span className="font-semibold">{bioData.weeklyHours} hours/week</span>. 
-            {' '}Activity: {bioData.messagesCount} message{bioData.messagesCount !== 1 ? 's' : ''}, {bioData.progressCount} progress update{bioData.progressCount !== 1 ? 's' : ''}, {bioData.clarifyCount} clarification{bioData.clarifyCount !== 1 ? 's' : ''}.
-          </p>
-          
-          {insights.length > 0 && (
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded p-2 border border-blue-100">
-              <p className="text-blue-800 font-semibold mb-1">AI Analysis:</p>
-              <p className="text-blue-900">{insights.join('; ').toLowerCase()}.</p>
-            </div>
-          )}
-        </div>
-
       </div>
     </div>
   );
