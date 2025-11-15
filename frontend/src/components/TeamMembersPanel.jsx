@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 function TeamMembersPanel({ project, team, selectedMemberId, onMemberSelect, onMessageClick, documents }) {
   const [selectedMember, setSelectedMember] = useState(null);
   const [expandedMember, setExpandedMember] = useState(null);
+  const [expandedOriginalMessages, setExpandedOriginalMessages] = useState(new Set());
 
   // Automatically expand member when selected from sidebar
   useEffect(() => {
@@ -76,9 +77,11 @@ function TeamMembersPanel({ project, team, selectedMemberId, onMemberSelect, onM
 
   return (
     <div className="h-full flex flex-col bg-white border-r border-gray-200">
-      <div className="p-3 border-b border-gray-200 bg-gray-50">
-        <h3 className="text-sm font-bold text-gray-800">{team.name}</h3>
-        <p className="text-xs text-gray-500 mt-1">{team.members?.length || 0} member{(team.members?.length || 0) !== 1 ? 's' : ''}</p>
+      <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200 bg-gray-50">
+        <div>
+          <h3 className="text-sm font-bold text-gray-800">{team.name}</h3>
+          <p className="text-xs text-gray-500 mt-0.5">{team.members?.length || 0} member{(team.members?.length || 0) !== 1 ? 's' : ''}</p>
+        </div>
       </div>
       
       <div className="flex-1 overflow-y-auto p-3">
@@ -125,22 +128,99 @@ function TeamMembersPanel({ project, team, selectedMemberId, onMemberSelect, onM
                   {isExpanded && member.messages && member.messages.length > 0 && (
                     <div className="space-y-3 mt-2 border-t border-gray-200 pt-2">
                       {member.messages.map((message, msgIndex) => {
-                        const messageText = message.original || message.text;
+                        const messageKey = `${member.id}-${msgIndex}`;
+                        const isOriginalExpanded = expandedOriginalMessages.has(messageKey);
+                        
                         return (
                           <div key={msgIndex} className="space-y-2">
-                            {/* Original Message */}
-                            <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-                              <div className="flex items-center gap-2 mb-2">
-                                <span className="text-xs font-medium text-gray-600">Original Message</span>
-                                {message.source && (
-                                  <>
-                                    <span className="text-xs text-gray-400">•</span>
-                                    <span className="text-xs text-gray-500 capitalize">{message.source}</span>
-                                  </>
+                            {/* Original Messages - Collapsible */}
+                            {message.originalMessages && message.originalMessages.length > 0 && (
+                              <div className="space-y-2">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    const newExpanded = new Set(expandedOriginalMessages);
+                                    if (isOriginalExpanded) {
+                                      newExpanded.delete(messageKey);
+                                    } else {
+                                      newExpanded.add(messageKey);
+                                    }
+                                    setExpandedOriginalMessages(newExpanded);
+                                  }}
+                                  className="w-full text-left px-3 py-2 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-between transition-colors"
+                                >
+                                  <span className="text-xs font-medium text-gray-600">
+                                    Original Messages ({message.originalMessages.length})
+                                  </span>
+                                  <svg 
+                                    className={`w-4 h-4 text-gray-500 transition-transform ${isOriginalExpanded ? 'rotate-180' : ''}`}
+                                    fill="none" 
+                                    stroke="currentColor" 
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                  </svg>
+                                </button>
+                                
+                                {isOriginalExpanded && (
+                                  <div className="space-y-2 pl-2">
+                                    {message.originalMessages.map((originalMsg, origIndex) => (
+                                      <div key={origIndex} className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                        <div className="flex items-center gap-2 mb-2">
+                                          <span className="text-xs font-medium text-gray-600">
+                                            Original message on {originalMsg.source}
+                                          </span>
+                                        </div>
+                                        <p className="text-xs text-gray-700 leading-relaxed">{originalMsg.text}</p>
+                                      </div>
+                                    ))}
+                                  </div>
                                 )}
                               </div>
-                              <p className="text-xs text-gray-700 leading-relaxed">{messageText}</p>
-                            </div>
+                            )}
+                            
+                            {/* Fallback for old format (backward compatibility) */}
+                            {(!message.originalMessages || message.originalMessages.length === 0) && (message.original || message.text) && (
+                              <div>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    const newExpanded = new Set(expandedOriginalMessages);
+                                    if (isOriginalExpanded) {
+                                      newExpanded.delete(messageKey);
+                                    } else {
+                                      newExpanded.add(messageKey);
+                                    }
+                                    setExpandedOriginalMessages(newExpanded);
+                                  }}
+                                  className="w-full text-left px-3 py-2 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-between transition-colors"
+                                >
+                                  <span className="text-xs font-medium text-gray-600">Original Message</span>
+                                  <svg 
+                                    className={`w-4 h-4 text-gray-500 transition-transform ${isOriginalExpanded ? 'rotate-180' : ''}`}
+                                    fill="none" 
+                                    stroke="currentColor" 
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                  </svg>
+                                </button>
+                                
+                                {isOriginalExpanded && (
+                                  <div className="p-3 bg-gray-50 rounded-lg border border-gray-200 mt-2">
+                                    <div className="flex items-center gap-2 mb-2">
+                                      {message.source && (
+                                        <>
+                                          <span className="text-xs text-gray-400">•</span>
+                                          <span className="text-xs text-gray-500 capitalize">{message.source}</span>
+                                        </>
+                                      )}
+                                    </div>
+                                    <p className="text-xs text-gray-700 leading-relaxed">{message.original || message.text}</p>
+                                  </div>
+                                )}
+                              </div>
+                            )}
                             
                             {/* Categorized Versions */}
                             {message.categorizedVersions && message.categorizedVersions.length > 0 && (

@@ -82,9 +82,11 @@ function SuggestionBox() {
 
   return (
     <div className="h-full flex flex-col bg-white border-l border-gray-200">
-      <div className="p-4 border-b border-gray-200 bg-gray-50">
-        <h3 className="text-sm font-bold text-gray-800">Suggestion Box / Agent Request Panel</h3>
-        <p className="text-xs text-gray-500 mt-1">Design → Discover → Automate</p>
+      <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200 bg-gray-50">
+        <div>
+          <h3 className="text-sm font-bold text-gray-800">Suggestion Box / Agent Request Panel</h3>
+          <p className="text-xs text-gray-500 mt-0.5">Design → Discover → Automate</p>
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">

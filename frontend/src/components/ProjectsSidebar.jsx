@@ -101,16 +101,14 @@ function ProjectsSidebar({ onProjectSelect, refreshTrigger, onProjectClick, sele
 
   return (
     <div className="h-full flex flex-col bg-white border-r border-gray-200">
-      <div className="p-3 border-b border-gray-200">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-bold text-gray-800">Projects</h3>
-          <button
-            onClick={() => onProjectSelect('new')}
-            className="px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600"
-          >
-            + New
-          </button>
-        </div>
+      <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200">
+        <h3 className="text-sm font-bold text-gray-800">Projects</h3>
+        <button
+          onClick={() => onProjectSelect('new')}
+          className="px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600"
+        >
+          + New
+        </button>
       </div>
       
       <div className="flex-1 overflow-y-auto">
