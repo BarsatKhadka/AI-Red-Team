@@ -24,6 +24,7 @@ export default {
         'bg': {
           DEFAULT: '#F9FAFB', // Gray-50
           card: '#FFFFFF', // White
+          elevated: '#F3F4F6', // Gray-100
         },
         'border': {
           'light': '#E5E7EB', // Gray-200

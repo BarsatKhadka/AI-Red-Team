@@ -18,6 +18,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background: #F9FAFB;
+  color: #111827;
 }
 
 .app-container {
@@ -28,7 +29,7 @@ body {
 
 .app-nav {
   background: white;
-  border-bottom: 2px solid #e5e7eb;
+  border-bottom: 2px solid #E5E7EB;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   position: sticky;
   top: 0;
@@ -40,7 +41,7 @@ body {
   margin: 0 auto;
   padding: 16px 24px;
   display: flex;
-  justify-content: flex-start;
+  justify-content: space-between;
   align-items: center;
   gap: 32px;
   flex-wrap: wrap;
@@ -64,7 +65,8 @@ body {
 .nav-links {
   display: flex;
   gap: 8px;
-  margin-left: 440px;
+  margin-left: auto;
+  margin-right: 200px;
 }
 
 .nav-link {

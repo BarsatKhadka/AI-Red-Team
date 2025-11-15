@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import Dashboard from './pages/Dashboard';
 import StaticFilesPage from './pages/StaticFilesPage';
-import DeliverablesPage from './pages/DeliverablesPage';
 import ComponentShowcase from './pages/ComponentShowcase';
+import PricingPage from './pages/PricingPage';
 import './styles/pages.css';
 
 function App() {
@@ -12,10 +12,10 @@ function App() {
     switch (currentPage) {
       case 'files':
         return <StaticFilesPage />;
-      case 'deliverables':
-        return <DeliverablesPage />;
       case 'showcase':
         return <ComponentShowcase />;
+      case 'pricing':
+        return <PricingPage />;
       case 'dashboard':
       default:
         return <Dashboard />;
@@ -33,25 +33,25 @@ function App() {
               onClick={() => setCurrentPage('dashboard')}
               className={`nav-link ${currentPage === 'dashboard' ? 'active' : ''}`}
             >
-              📊 Dashboard
+              Dashboard
             </button>
             <button 
               onClick={() => setCurrentPage('files')}
               className={`nav-link ${currentPage === 'files' ? 'active' : ''}`}
             >
-              📁 Project Files
-            </button>
-            <button 
-              onClick={() => setCurrentPage('deliverables')}
-              className={`nav-link ${currentPage === 'deliverables' ? 'active' : ''}`}
-            >
-              📦 Deliverables
+              Project Files
             </button>
             <button 
               onClick={() => setCurrentPage('showcase')}
               className={`nav-link ${currentPage === 'showcase' ? 'active' : ''}`}
             >
-              ✨ AI Showcase
+              Deliverable
+            </button>
+            <button 
+              onClick={() => setCurrentPage('pricing')}
+              className={`nav-link ${currentPage === 'pricing' ? 'active' : ''}`}
+            >
+              Pricing Plans
             </button>
           </div>
         </div>

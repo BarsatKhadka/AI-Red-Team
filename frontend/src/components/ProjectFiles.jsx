@@ -20,10 +20,10 @@ function ProjectFiles() {
 
   return (
     <div className="relative bg-bg-card">
-      <div className="h-16 flex items-center justify-between px-6 border-b border-border-light">
-        <div className="flex items-center gap-3">
-          <span className="text-2xl font-semibold text-text-primary">Project Files</span>
-          <span className="px-2.5 py-1 bg-primary-light text-primary rounded-lg text-sm font-medium">
+      <div className="h-16 flex items-center justify-between px-4 border-b border-border-light">
+        <div className="flex flex-col">
+          <span className="text-sm font-semibold text-text-primary">Project Files</span>
+          <span className="text-xs text-text-secondary mt-0.5">
             Total files: {fileCount}
           </span>
         </div>

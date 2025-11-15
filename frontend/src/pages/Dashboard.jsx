@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import ProjectsSidebar from '../components/ProjectsSidebar';
 import TeamMembersPanel from '../components/TeamMembersPanel';
 import ProjectFiles from '../components/ProjectFiles';
@@ -18,12 +18,51 @@ function Dashboard() {
   const [isEditing, setIsEditing] = useState(false);
   const [editedReply, setEditedReply] = useState('');
   const [showSendOptions, setShowSendOptions] = useState(false);
+  const [expandedProfile, setExpandedProfile] = useState(false);
+  const expandedProfileRef = useRef(false);
+
+  // Sync ref with state (backup sync, but we update ref directly in handlers)
+  useEffect(() => {
+    if (expandedProfileRef.current !== expandedProfile) {
+      console.log('useEffect syncing ref: state is', expandedProfile, 'ref was', expandedProfileRef.current);
+      expandedProfileRef.current = expandedProfile;
+    }
+  }, [expandedProfile]);
+
+  const handleExpandProfile = useCallback(() => {
+    console.log('handleExpandProfile called, current ref:', expandedProfileRef.current);
+    // Update ref FIRST, then state
+    expandedProfileRef.current = true;
+    setExpandedProfile(true);
+    console.log('Set expandedProfile to true, ref updated to:', expandedProfileRef.current);
+  }, []);
+
+  const handleCollapseProfile = useCallback(() => {
+    setExpandedProfile(false);
+  }, []);
 
   const handleMessageSelect = (replyData, messageData) => {
+    console.log('handleMessageSelect called, expandedProfile ref:', expandedProfileRef.current);
+    const wasExpanded = expandedProfileRef.current;
+    console.log('Was expanded before message select:', wasExpanded);
+    
     setAiReply(replyData);
     setCurrentMessage(messageData);
     setEditedReply(replyData?.reply || '');
     setIsEditing(false);
+    
+    // Explicitly preserve expandedProfile state when a message is selected
+    // Use a longer timeout to ensure this happens after ALL state updates
+    if (wasExpanded) {
+      console.log('Preserving expandedProfile state...');
+      setTimeout(() => {
+        console.log('Restoring expandedProfile to true');
+        setExpandedProfile(true);
+        expandedProfileRef.current = true;
+      }, 50);
+    } else {
+      console.log('Not preserving - was not expanded');
+    }
   };
 
   const handleReplyEdit = (editedText) => {
@@ -72,6 +111,12 @@ function Dashboard() {
   };
 
   const handleMemberSelect = (member, team, project) => {
+    console.log('handleMemberSelect called, expandedProfile ref:', expandedProfileRef.current);
+    // Only reset if it's a different member
+    if (selectedMember?.id !== member?.id) {
+      setExpandedProfile(false); // Reset to compact when selecting a new member
+      expandedProfileRef.current = false;
+    }
     setSelectedMember(member);
     if (team) {
       setSelectedTeam(team);
@@ -82,11 +127,21 @@ function Dashboard() {
   };
 
   const handleMessageClick = async (memberName, messageType, messageText, projectName, teamName, messageSource) => {
-    // Find and set the selected member
+    console.log('handleMessageClick called, expandedProfile ref:', expandedProfileRef.current);
+    // Find and set the selected member (only if different to avoid unnecessary re-renders)
     if (selectedTeam && selectedTeam.members) {
       const member = selectedTeam.members.find(m => m.name === memberName);
       if (member) {
-        setSelectedMember(member);
+        // Only update if it's a different member
+        if (selectedMember?.id !== member.id) {
+          setSelectedMember(member);
+          // Reset expanded profile when clicking a message from a different member
+          // But check if user just expanded it
+          if (!expandedProfileRef.current) {
+            setExpandedProfile(false);
+          }
+        }
+        // If it's the same member, DO NOT reset expandedProfile - preserve user's choice
       }
     }
     
@@ -154,7 +209,7 @@ function Dashboard() {
         </div>
         
         {/* Middle Panel - Team Members */}
-        <div className="w-80 border-r border-border-light bg-bg-card">
+        <div className="w-96 border-r border-border-light bg-bg-card">
           <TeamMembersPanel 
             project={selectedProject}
             team={selectedTeam}
@@ -175,13 +230,21 @@ function Dashboard() {
             </div>
             
             {/* Member Bio Summary - Profile Analysis */}
-            <div className="flex-shrink-0 border-b border-border-light bg-bg-card px-6 py-3">
-              <MemberBioSummary 
-                member={selectedMember}
-                project={selectedProject}
-                team={selectedTeam}
-              />
-            </div>
+            {selectedMember && (
+              <div 
+                className="flex-shrink-0 border-b border-border-light bg-bg-card px-6 py-3"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <MemberBioSummary 
+                  member={selectedMember}
+                  project={selectedProject}
+                  team={selectedTeam}
+                  compact={currentMessage !== null && expandedProfile === false}
+                  onExpand={handleExpandProfile}
+                  onCollapse={handleCollapseProfile}
+                />
+              </div>
+            )}
             
             {/* AI Conversation - Below Profile Analysis */}
             {currentMessage && (
@@ -301,7 +364,7 @@ function Dashboard() {
                                         className="w-full text-left px-4 py-2.5 hover:bg-primary-light flex items-center gap-3 text-xs transition-colors group border-t border-border-light"
                                       >
                                         <div className="w-7 h-7 rounded bg-primary-light flex items-center justify-center group-hover:bg-primary transition-colors">
-                                          <svg className="w-4 h-4 text-purple-600" fill="currentColor" viewBox="0 0 24 24">
+                                          <svg className="w-4 h-4 text-primary" fill="currentColor" viewBox="0 0 24 24">
                                             <path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52 2.527 2.527 0 0 1 2.52 2.52zM6.313 15.165a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52 2.528 2.528 0 0 1-2.521 2.523 2.528 2.528 0 0 1-2.521-2.523zm2.521-9.043A2.528 2.528 0 0 1 11.355 8.647a2.528 2.528 0 0 1-2.521 2.521 2.528 2.528 0 0 1-2.521-2.521 2.528 2.528 0 0 1 2.521-2.525zm9.043 9.043a2.528 2.528 0 0 1-2.52 2.523 2.528 2.528 0 0 1-2.521-2.523 2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.52 2.52zm2.521-9.043a2.528 2.528 0 0 1-2.525 2.525 2.528 2.528 0 0 1-2.523-2.525 2.528 2.528 0 0 1 2.523-2.521 2.528 2.528 0 0 1 2.525 2.521zM15.165 21.313a2.528 2.528 0 0 1-2.523 2.521 2.528 2.528 0 0 1-2.525-2.521 2.528 2.528 0 0 1 2.525-2.523 2.528 2.528 0 0 1 2.523 2.523zM21.313 12.042a2.528 2.528 0 0 1-2.521 2.52 2.528 2.528 0 0 1-2.523-2.52 2.528 2.528 0 0 1 2.523-2.521 2.528 2.528 0 0 1 2.521 2.521z"/>
                                           </svg>
                                         </div>
@@ -319,7 +382,7 @@ function Dashboard() {
                                       >
                                         <div className="w-7 h-7 rounded bg-primary-light flex items-center justify-center group-hover:bg-primary transition-colors">
                                           <svg className="w-4 h-4 text-primary" fill="currentColor" viewBox="0 0 24 24">
-                                            <path d="M19.5 4.5h-15A1.5 1.5 0 0 0 3 6v12a1.5 1.5 0 0 0 1.5 1.5h15a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5zm-1.5 9h-3 v3h-3v-3H9v-3h3V7.5h3V9h3v4.5z"/>
+                                            <path d="M19.5 4.5h-15A1.5 1.5 0 0 0 3 6v12a1.5 1.5 0 0 0 1.5 1.5h15a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5zm-1.5 9h-3v3h-3v-3H9v-3h3V7.5h3V9h3v4.5z"/>
                                           </svg>
                                         </div>
                                         <div className="flex-1">
