@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
+import PDFSectionViewer from './PDFSectionViewer';
 
 function AIReplyViewer({ reply, loading, messageData, onReplyEdit }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editedReply, setEditedReply] = useState('');
   const [showSendOptions, setShowSendOptions] = useState(false);
+  const [sectionViewer, setSectionViewer] = useState({ isVisible: false, documentType: '', section: '' });
 
   useEffect(() => {
     if (reply) {
@@ -48,6 +50,66 @@ function AIReplyViewer({ reply, loading, messageData, onReplyEdit }) {
     alert(`Reply sent to ${messageData.memberName} via Slack`);
     setShowSendOptions(false);
   };
+
+  // Parse reply text and add View buttons for section references
+  const renderReplyWithViewButtons = (text) => {
+    if (!text) return text;
+    
+    // Pattern to match: "Section X.Y of the Document Name" or "Section X.Y"
+    const sectionPattern = /Section\s+(\d+\.\d+|\w+)\s+(?:of\s+the\s+)?(?:Technical\s+Design\s+Document|Product\s+Design\s+Document|Project\s+Overview|Requirements\s+Document)?/gi;
+    
+    const parts = [];
+    let lastIndex = 0;
+    let match;
+    
+    while ((match = sectionPattern.exec(text)) !== null) {
+      // Add text before the match
+      if (match.index > lastIndex) {
+        parts.push(text.substring(lastIndex, match.index));
+      }
+      
+      // Extract section number and document type
+      const sectionNum = match[1];
+      const fullMatch = match[0];
+      let documentType = 'Technical Design Document'; // default
+      
+      if (fullMatch.includes('Product Design Document') || fullMatch.includes('PDD')) {
+        documentType = 'Product Design Document';
+      } else if (fullMatch.includes('Technical Design Document') || fullMatch.includes('TDD')) {
+        documentType = 'Technical Design Document';
+      } else if (fullMatch.includes('Project Overview')) {
+        documentType = 'Project Overview';
+      } else if (fullMatch.includes('Requirements')) {
+        documentType = 'Requirements Document';
+      }
+      
+      // Add the matched text and View button
+      parts.push(
+        <span key={match.index} className="inline-flex items-center gap-1">
+          {fullMatch}{' '}
+          <button
+            onClick={() => setSectionViewer({ isVisible: true, documentType, section: sectionNum })}
+            className="ml-1 px-3 py-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-xs font-medium rounded-md shadow-sm hover:from-blue-600 hover:to-blue-700 hover:shadow-md transition-all duration-200 flex items-center gap-1"
+          >
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+            View
+          </button>
+        </span>
+      );
+      
+      lastIndex = match.index + match[0].length;
+    }
+    
+    // Add remaining text
+    if (lastIndex < text.length) {
+      parts.push(text.substring(lastIndex));
+    }
+    
+    return parts.length > 0 ? parts : text;
+  };
   if (loading) {
     return (
       <div className="h-full flex items-center justify-center bg-gray-100">
@@ -75,6 +137,20 @@ function AIReplyViewer({ reply, loading, messageData, onReplyEdit }) {
         <div className="text-center text-gray-500">
           <p className="text-lg">No reply available</p>
         </div>
+      </div>
+    );
+  }
+
+  // If section viewer is open, show PDF instead of AI reply
+  if (sectionViewer.isVisible) {
+    return (
+      <div className="h-full flex flex-col bg-white">
+        <PDFSectionViewer
+          isVisible={true}
+          onClose={() => setSectionViewer({ isVisible: false, documentType: '', section: '' })}
+          documentType={sectionViewer.documentType}
+          section={sectionViewer.section}
+        />
       </div>
     );
   }
@@ -132,9 +208,9 @@ function AIReplyViewer({ reply, loading, messageData, onReplyEdit }) {
             </div>
           ) : (
             <div className="prose max-w-none">
-              <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">
-                {reply.reply}
-              </p>
+              <div className="text-gray-700 whitespace-pre-wrap leading-relaxed">
+                {renderReplyWithViewButtons(reply.reply)}
+              </div>
             </div>
           )}
 
