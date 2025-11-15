@@ -27,7 +27,7 @@ function App() {
       {/* Navigation */}
       <nav className="app-nav">
         <div className="nav-content">
-          <h2 className="nav-logo">🛡️ AI Red Team</h2>
+          <h2 className="nav-logo">AI Red Team</h2>
           <div className="nav-links">
             <button 
               onClick={() => setCurrentPage('dashboard')}

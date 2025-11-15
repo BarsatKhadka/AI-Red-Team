@@ -100,12 +100,12 @@ function ProjectsSidebar({ onProjectSelect, refreshTrigger, onProjectClick, sele
   }
 
   return (
-    <div className="h-full flex flex-col bg-white border-r border-gray-200">
-      <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200">
-        <h3 className="text-sm font-bold text-gray-800">Projects</h3>
+    <div className="h-full flex flex-col bg-bg-card border-r border-border-light">
+      <div className="h-16 flex items-center justify-between px-4 border-b border-border-light">
+        <h3 className="text-sm font-semibold text-text-primary">Projects</h3>
         <button
           onClick={() => onProjectSelect('new')}
-          className="px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600"
+          className="px-3 py-1.5 bg-primary text-white rounded font-medium text-sm hover:bg-primary-hover transition-colors"
         >
           + New
         </button>
@@ -120,22 +120,22 @@ function ProjectsSidebar({ onProjectSelect, refreshTrigger, onProjectClick, sele
             return (
               <div key={project.id}>
                 {/* Project Row */}
-                <div
-                  onClick={(e) => handleProjectClick(project, e)}
-                  className={`p-2 rounded cursor-pointer transition-colors ${
-                    isSelected
-                      ? 'bg-blue-100 border-l-2 border-blue-500'
-                      : 'hover:bg-gray-50'
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-gray-500">
-                      {isExpanded ? '▼' : '▶'}
-                    </span>
-                    <span className="text-xs">📁</span>
-                    <span className="text-sm font-medium text-gray-800 truncate">{project.name}</span>
-                  </div>
-                </div>
+                        <div
+                          onClick={(e) => handleProjectClick(project, e)}
+                          className={`p-2 rounded cursor-pointer transition-colors ${
+                            isSelected
+                              ? 'bg-primary-light border-l-2 border-primary'
+                              : 'hover:bg-gray-50'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-text-tertiary">
+                              {isExpanded ? '▼' : '▶'}
+                            </span>
+                            <span className="text-xs">📁</span>
+                            <span className="text-sm font-medium text-text-primary truncate">{project.name}</span>
+                          </div>
+                        </div>
 
                 {/* Teams - Shown when project is expanded */}
                 {isExpanded && project.teams && project.teams.length > 0 && (
@@ -146,21 +146,21 @@ function ProjectsSidebar({ onProjectSelect, refreshTrigger, onProjectClick, sele
                       const isSelected = selectedTeamId === team.id;
                       return (
                         <div key={team.id}>
-                          <div
-                            onClick={(e) => handleTeamClick(team, project, e)}
-                            className={`py-1 px-2 cursor-pointer rounded text-sm transition-colors ${
-                              isSelected
-                                ? 'bg-blue-50 text-blue-700 font-medium'
-                                : 'text-gray-700 hover:bg-gray-50'
-                            }`}
-                          >
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs text-gray-500">
-                                {isTeamExpanded ? '▼' : '▶'}
-                              </span>
-                              <span>{team.name}</span>
-                            </div>
-                          </div>
+                                  <div
+                                    onClick={(e) => handleTeamClick(team, project, e)}
+                                    className={`py-1 px-2 cursor-pointer rounded text-sm transition-colors ${
+                                      isSelected
+                                        ? 'bg-primary-light text-primary font-medium'
+                                        : 'text-text-primary hover:bg-gray-50'
+                                    }`}
+                                  >
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-xs text-text-tertiary">
+                                        {isTeamExpanded ? '▼' : '▶'}
+                                      </span>
+                                      <span className="font-medium">{team.name}</span>
+                                    </div>
+                                  </div>
                           
                           {/* Members - Shown when team is expanded */}
                           {isTeamExpanded && team.members && team.members.length > 0 && (
@@ -168,17 +168,17 @@ function ProjectsSidebar({ onProjectSelect, refreshTrigger, onProjectClick, sele
                               {team.members.map((member) => {
                                 const isSelected = selectedMemberId === member.id;
                                 return (
-                                  <div
-                                    key={member.id}
-                                    onClick={(e) => handleMemberClick(member, team, project, e)}
-                                    className={`py-1 px-2 text-xs rounded cursor-pointer transition-colors ${
-                                      isSelected
-                                        ? 'bg-blue-100 text-blue-700 font-medium'
-                                        : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
-                                    }`}
-                                  >
-                                    👤 {member.name}
-                                  </div>
+                                          <div
+                                            key={member.id}
+                                            onClick={(e) => handleMemberClick(member, team, project, e)}
+                                            className={`py-1 px-2 text-xs rounded cursor-pointer transition-colors ${
+                                              isSelected
+                                                ? 'bg-primary-light text-primary font-medium'
+                                                : 'text-text-secondary hover:text-text-primary hover:bg-gray-50'
+                                            }`}
+                                          >
+                                            <span className="text-text-tertiary">👤</span> {member.name}
+                                          </div>
                                 );
                               })}
                             </div>

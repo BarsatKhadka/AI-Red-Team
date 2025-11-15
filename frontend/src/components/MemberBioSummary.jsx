@@ -100,26 +100,34 @@ function MemberBioSummary({ member, project, team }) {
   const insights = generateInsights();
 
   return (
-    <div className="w-full">
+    <div className="w-full bg-bg rounded-md border border-border-light p-3">
       <div className="flex items-start gap-3">
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-purple-400 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-          {member.name.charAt(0)}
-        </div>
+        {member.name === 'Alice' ? (
+          <img 
+            src="https://api.dicebear.com/7.x/avataaars/svg?seed=Alice&backgroundColor=b8b5ff"
+            alt={member.name}
+            className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+          />
+        ) : (
+          <div className="w-8 h-8 rounded-full bg-avatar-alice flex items-center justify-center text-white font-medium text-sm flex-shrink-0">
+            {member.name.charAt(0)}
+          </div>
+        )}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <h3 className="text-sm font-semibold text-gray-800">{member.name} (Profile analysis with ai)</h3>
-            <span className="text-xs text-gray-400">•</span>
-            <p className="text-xs text-gray-500">{team?.name || 'Team'}</p>
+            <h3 className="text-lg font-semibold text-text-primary">{member.name} (Profile analysis with ai)</h3>
+            <span className="text-xs text-text-tertiary">•</span>
+            <p className="text-xs text-text-secondary">{team?.name || 'Team'}</p>
           </div>
           
-          <div className="text-xs text-gray-700 leading-relaxed space-y-1">
+          <div className="text-sm text-gray-700 leading-relaxed space-y-1">
             <p>
-              <span className="font-semibold text-gray-800">Status:</span> {bioData.currentActivity}. 
-              {' '}<span className="font-semibold text-blue-600">{bioData.completionPercent}%</span> complete ({bioData.completedTasks}/{bioData.totalTasks} tasks).
+              <span className="font-medium text-text-primary">Status:</span> {bioData.currentActivity}. 
+              {' '}<span className="font-medium text-warning">{bioData.completionPercent}%</span> complete ({bioData.completedTasks}/{bioData.totalTasks} tasks).
             </p>
             
-            <p>
-              Available <span className="font-semibold">{bioData.weeklyHours} hours/week</span>. 
+            <p className="text-sm text-text-secondary">
+              Available <span className="font-medium">{bioData.weeklyHours} hours/week</span>. 
               {' '}{bioData.messagesCount} message{bioData.messagesCount !== 1 ? 's' : ''}, {bioData.progressCount} progress update{bioData.progressCount !== 1 ? 's' : ''}, {bioData.clarifyCount} clarification{bioData.clarifyCount !== 1 ? 's' : ''}.
             </p>
           </div>
@@ -128,9 +136,9 @@ function MemberBioSummary({ member, project, team }) {
         {/* Comments - Right Side */}
         {insights.length > 0 && (
           <div className="flex-shrink-0 ml-auto">
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded px-3 py-2 border border-blue-100">
-              <p className="text-blue-800 font-semibold text-xs mb-0.5">Comments:</p>
-              <p className="text-blue-900 text-xs">{insights.join('; ').toLowerCase()}.</p>
+            <div className="bg-primary-light rounded px-3 py-2 border border-primary/20">
+              <p className="text-primary font-semibold text-xs mb-0.5">Comments:</p>
+              <p className="text-text-primary text-xs">{insights.join('; ').toLowerCase()}.</p>
             </div>
           </div>
         )}

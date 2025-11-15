@@ -26,16 +26,16 @@ function TeamMembersPanel({ project, team, selectedMemberId, onMemberSelect, onM
 
   if (!project) {
     return (
-      <div className="h-full flex items-center justify-center bg-gray-50">
-        <p className="text-gray-500">Select a project to view team members</p>
+      <div className="h-full flex items-center justify-center bg-bg">
+        <p className="text-text-secondary">Select a project to view team members</p>
       </div>
     );
   }
 
   if (!team) {
     return (
-      <div className="h-full flex items-center justify-center bg-gray-50">
-        <p className="text-gray-500">Select a team to view members</p>
+      <div className="h-full flex items-center justify-center bg-bg">
+        <p className="text-text-secondary">Select a team to view members</p>
       </div>
     );
   }
@@ -43,13 +43,13 @@ function TeamMembersPanel({ project, team, selectedMemberId, onMemberSelect, onM
   const getMessageTypeColor = (type) => {
     switch (type) {
       case '@clarify':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-[#DBEAFE] text-[#1E40AF]';
       case '@availability':
-        return 'bg-green-100 text-green-800';
+        return 'bg-[#D1FAE5] text-[#065F46]';
       case '@progress_update':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-[#FEF3C7] text-[#92400E]';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-border-light text-text-primary';
     }
   };
 
@@ -76,11 +76,11 @@ function TeamMembersPanel({ project, team, selectedMemberId, onMemberSelect, onM
   };
 
   return (
-    <div className="h-full flex flex-col bg-white border-r border-gray-200">
-      <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200 bg-gray-50">
+    <div className="h-full flex flex-col bg-bg border-r border-border-light">
+      <div className="h-16 flex items-center justify-between px-4 border-b border-border-light">
         <div>
-          <h3 className="text-sm font-bold text-gray-800">{team.name}</h3>
-          <p className="text-xs text-gray-500 mt-0.5">{team.members?.length || 0} member{(team.members?.length || 0) !== 1 ? 's' : ''}</p>
+          <h3 className="text-base font-semibold text-text-primary">{team.name}</h3>
+          <p className="text-sm text-text-secondary mt-0.5">{team.members?.length || 0} member{(team.members?.length || 0) !== 1 ? 's' : ''}</p>
         </div>
       </div>
       
@@ -102,23 +102,31 @@ function TeamMembersPanel({ project, team, selectedMemberId, onMemberSelect, onM
               return (
                 <div
                   key={member.id}
-                  className={`p-3 rounded-lg border cursor-pointer transition-all ${
+                  className={`p-4 rounded-md border cursor-pointer transition-all shadow-sm ${
                     isSelected
-                      ? 'bg-blue-50 border-blue-300 shadow-sm'
-                      : 'bg-white border-gray-200 hover:border-gray-300 hover:shadow-sm'
+                      ? 'bg-bg-card border-primary shadow-sm'
+                      : 'bg-bg-card border-border-light hover:border-border-medium hover:shadow-sm'
                   }`}
                   onClick={() => handleMemberClick(member)}
                 >
                   <div className="flex items-center gap-2 mb-2">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-purple-400 flex items-center justify-center text-white font-semibold text-xs">
-                      {member.name.charAt(0)}
-                    </div>
+                    {member.name === 'Alice' ? (
+                      <img 
+                        src="https://api.dicebear.com/7.x/avataaars/svg?seed=Alice&backgroundColor=b8b5ff"
+                        alt={member.name}
+                        className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+                      />
+                    ) : (
+                      <div className="w-8 h-8 rounded-full bg-avatar-alice flex items-center justify-center text-white font-medium text-sm">
+                        {member.name.charAt(0)}
+                      </div>
+                    )}
                     <div className="flex-1">
-                      <div className="font-semibold text-sm text-gray-800">{member.name}</div>
-                      <div className="text-xs text-gray-500">{team.name}</div>
+                      <div className="font-semibold text-sm text-text-primary">{member.name}</div>
+                      <div className="text-xs text-text-secondary">{team.name}</div>
                     </div>
                     {hasMessages && (
-                      <div className="text-xs text-gray-400">
+                      <div className="text-xs text-text-tertiary">
                         {member.messages.length} message{member.messages.length !== 1 ? 's' : ''}
                       </div>
                     )}
@@ -126,7 +134,7 @@ function TeamMembersPanel({ project, team, selectedMemberId, onMemberSelect, onM
                   
                   {/* Messages - Only show when expanded */}
                   {isExpanded && member.messages && member.messages.length > 0 && (
-                    <div className="space-y-3 mt-2 border-t border-gray-200 pt-2">
+                    <div className="space-y-3 mt-2 border-t border-border-light pt-2">
                       {member.messages.map((message, msgIndex) => {
                         const messageKey = `${member.id}-${msgIndex}`;
                         const isOriginalExpanded = expandedOriginalMessages.has(messageKey);
@@ -165,13 +173,13 @@ function TeamMembersPanel({ project, team, selectedMemberId, onMemberSelect, onM
                                 {isOriginalExpanded && (
                                   <div className="space-y-2 pl-2">
                                     {message.originalMessages.map((originalMsg, origIndex) => (
-                                      <div key={origIndex} className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                      <div key={origIndex} className="p-3 bg-bg rounded-md border border-border-light">
                                         <div className="flex items-center gap-2 mb-2">
-                                          <span className="text-xs font-medium text-gray-600">
+                                          <span className="text-xs font-medium text-text-primary">
                                             Original message on {originalMsg.source}
                                           </span>
                                         </div>
-                                        <p className="text-xs text-gray-700 leading-relaxed">{originalMsg.text}</p>
+                                        <p className="text-xs text-text-primary leading-relaxed">{originalMsg.text}</p>
                                       </div>
                                     ))}
                                   </div>
@@ -193,11 +201,11 @@ function TeamMembersPanel({ project, team, selectedMemberId, onMemberSelect, onM
                                     }
                                     setExpandedOriginalMessages(newExpanded);
                                   }}
-                                  className="w-full text-left px-3 py-2 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-between transition-colors"
+                                  className="w-full text-left px-3 py-2 bg-bg hover:bg-border-light rounded-lg border border-border-light flex items-center justify-between transition-colors"
                                 >
-                                  <span className="text-xs font-medium text-gray-600">Original Message</span>
+                                  <span className="text-xs font-medium text-text-primary">Original Message</span>
                                   <svg 
-                                    className={`w-4 h-4 text-gray-500 transition-transform ${isOriginalExpanded ? 'rotate-180' : ''}`}
+                                    className={`w-4 h-4 text-text-secondary transition-transform ${isOriginalExpanded ? 'rotate-180' : ''}`}
                                     fill="none" 
                                     stroke="currentColor" 
                                     viewBox="0 0 24 24"
@@ -207,16 +215,16 @@ function TeamMembersPanel({ project, team, selectedMemberId, onMemberSelect, onM
                                 </button>
                                 
                                 {isOriginalExpanded && (
-                                  <div className="p-3 bg-gray-50 rounded-lg border border-gray-200 mt-2">
+                                  <div className="p-3 bg-bg rounded-md border border-border-light mt-2">
                                     <div className="flex items-center gap-2 mb-2">
                                       {message.source && (
                                         <>
-                                          <span className="text-xs text-gray-400">•</span>
-                                          <span className="text-xs text-gray-500 capitalize">{message.source}</span>
+                                          <span className="text-xs text-text-tertiary">•</span>
+                                          <span className="text-xs text-text-secondary capitalize">{message.source}</span>
                                         </>
                                       )}
                                     </div>
-                                    <p className="text-xs text-gray-700 leading-relaxed">{message.original || message.text}</p>
+                                    <p className="text-xs text-text-primary leading-relaxed">{message.original || message.text}</p>
                                   </div>
                                 )}
                               </div>
@@ -225,8 +233,8 @@ function TeamMembersPanel({ project, team, selectedMemberId, onMemberSelect, onM
                             {/* Categorized Versions */}
                             {message.categorizedVersions && message.categorizedVersions.length > 0 && (
                               <div className="space-y-1.5">
-                                <div className="text-xs font-medium text-gray-600 mb-1">Categorized Versions:</div>
-                                {message.categorizedVersions.map((version, versionIndex) => (
+                                <div className="text-xs font-medium text-text-primary mb-1">Categorized Versions:</div>
+                                    {message.categorizedVersions.map((version, versionIndex) => (
                                   <div
                                     key={versionIndex}
                                     onClick={(e) => {
@@ -237,31 +245,29 @@ function TeamMembersPanel({ project, team, selectedMemberId, onMemberSelect, onM
                                       }
                                       onMessageClick(member.name, version.type, version.text, project.name, team.name, version.source || 'outlook', documents);
                                     }}
-                                    className="p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:shadow-sm cursor-pointer transition-all"
+                                    className="p-4 bg-bg-card rounded-md border border-border-light hover:border-primary hover:shadow-sm cursor-pointer transition-all"
                                   >
                                     <div className="flex items-center justify-between mb-2">
                                       <div className="flex items-center gap-2 flex-wrap">
-                                        <span className={`text-xs font-medium px-2 py-1 rounded ${getMessageTypeColor(version.type)}`}>
+                                        <span className={`text-xs font-medium px-2.5 py-1 rounded-sm ${getMessageTypeColor(version.type)}`}>
                                           {version.type}
                                         </span>
-                                        <span className="text-xs text-gray-500">
+                                        <span className="text-xs text-text-tertiary">
                                           {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                                         </span>
                                       </div>
                                     </div>
                                     {version.source && (
-                                      <div className="mb-2">
-                                        <span className="text-xs text-gray-500 flex items-center gap-1.5">
-                                          <span className="text-gray-400">Sent from</span>
-                                          <span className="font-medium text-gray-600 capitalize">{version.source}</span>
-                                          <span className="text-gray-400">•</span>
-                                          <span className="text-blue-600 font-medium">
-                                            {member.name.toLowerCase()}@{version.source === 'outlook' ? 'outlook.com' : version.source === 'slack' ? 'slack.com' : 'teams.microsoft.com'}
-                                          </span>
+                                      <div className="mb-2 flex items-center gap-1.5 flex-wrap">
+                                        <span className="text-xs text-text-tertiary">Sent from</span>
+                                        <span className="text-xs font-medium text-text-secondary capitalize">{version.source}</span>
+                                        <span className="text-xs text-text-tertiary">•</span>
+                                        <span className="text-xs text-primary font-normal">
+                                          {member.name.toLowerCase()}@{version.source === 'outlook' ? 'outlook.com' : version.source === 'slack' ? 'slack.com' : 'teams.microsoft.com'}
                                         </span>
                                       </div>
                                     )}
-                                    <p className="text-xs text-gray-700 leading-relaxed">{version.text}</p>
+                                    <p className="text-sm text-text-primary leading-relaxed">{version.text}</p>
                                   </div>
                                 ))}
                               </div>
@@ -275,7 +281,7 @@ function TeamMembersPanel({ project, team, selectedMemberId, onMemberSelect, onM
               );
             })
           ) : (
-            <div className="p-4 text-center text-gray-500 text-sm">
+            <div className="p-4 text-center text-text-secondary text-sm">
               No members found in this team.
             </div>
           )}

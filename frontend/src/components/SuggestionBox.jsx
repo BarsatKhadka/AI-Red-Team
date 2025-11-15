@@ -81,25 +81,25 @@ function SuggestionBox() {
   };
 
   return (
-    <div className="h-full flex flex-col bg-white border-l border-gray-200">
-      <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200 bg-gray-50">
+    <div className="h-full flex flex-col bg-bg-card border-l border-border-light">
+      <div className="h-16 flex items-center justify-between px-4 border-b border-border-light bg-bg">
         <div>
-          <h3 className="text-sm font-bold text-gray-800">Suggestion Box / Agent Request Panel</h3>
-          <p className="text-xs text-gray-500 mt-0.5">Design → Discover → Automate</p>
+          <h3 className="text-sm font-bold text-text-primary">Suggestion Box / Agent Request Panel</h3>
+          <p className="text-xs text-text-secondary mt-0.5">Design → Discover → Automate</p>
         </div>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {/* Smart Suggestions */}
         <div>
-          <h4 className="text-xs font-semibold text-gray-700 mb-2">Smart Suggestions</h4>
+          <h4 className="text-xs font-semibold text-text-primary mb-2">Smart Suggestions</h4>
           <div className="space-y-2">
             {suggestions.map((suggestion) => (
               <button
                 key={suggestion.id}
                 onClick={() => handleSuggestionClick(suggestion.endpoint)}
                 disabled={loading}
-                className="w-full text-left px-3 py-2 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg text-xs font-medium text-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full text-left px-3 py-2 bg-primary-light hover:bg-primary-light/80 border border-primary/20 rounded-lg text-xs font-medium text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {suggestion.label}
               </button>
@@ -109,20 +109,20 @@ function SuggestionBox() {
 
         {/* Freeform Request Input */}
         <div>
-          <h4 className="text-xs font-semibold text-gray-700 mb-2">Ask the agent to perform, analyze</h4>
+          <h4 className="text-xs font-semibold text-text-primary mb-2">Ask the agent to perform, analyze</h4>
           <form onSubmit={handleFreeformSubmit} className="space-y-2">
             <textarea
               value={requestText}
               onChange={(e) => setRequestText(e.target.value)}
               placeholder="Ask the agent…"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+              className="w-full px-3 py-2 border border-border-medium rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-primary resize-none"
               rows="3"
               disabled={loading}
             />
             <button
               type="submit"
               disabled={loading || !requestText.trim()}
-              className="w-full px-3 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 font-medium text-xs disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-full px-3 py-2 bg-success text-white rounded-lg hover:bg-success-hover font-medium text-xs disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {loading ? 'Processing...' : 'Submit Request'}
             </button>
@@ -131,25 +131,25 @@ function SuggestionBox() {
 
         {/* Result Display */}
         {result && (
-          <div className="mt-4 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+          <div className="mt-4 p-3 bg-bg border border-border-light rounded-lg">
             {result.type === 'pdf' ? (
               <div>
-                <p className="text-xs font-semibold text-gray-700 mb-2">PDF Generated:</p>
+                <p className="text-xs font-semibold text-text-primary mb-2">PDF Generated:</p>
                 <a
                   href={`${API_BASE_URL}${result.url}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-xs text-blue-600 hover:underline"
+                  className="text-xs text-primary hover:underline"
                 >
                   View PDF
                 </a>
               </div>
             ) : result.type === 'error' ? (
-              <p className="text-xs text-red-600">{result.text}</p>
+              <p className="text-xs text-error">{result.text}</p>
             ) : (
               <div>
-                <p className="text-xs font-semibold text-gray-700 mb-2">Response:</p>
-                <p className="text-xs text-gray-600 whitespace-pre-wrap">{result.text}</p>
+                <p className="text-xs font-semibold text-text-primary mb-2">Response:</p>
+                <p className="text-xs text-text-secondary whitespace-pre-wrap">{result.text}</p>
               </div>
             )}
           </div>
