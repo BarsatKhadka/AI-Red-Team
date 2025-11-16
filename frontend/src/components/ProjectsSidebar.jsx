@@ -13,6 +13,17 @@ function ProjectsSidebar({ onProjectSelect, refreshTrigger, onProjectClick, sele
     fetchProjects();
   }, [refreshTrigger]);
 
+  // Auto-expand selected project and team
+  useEffect(() => {
+    if (selectedProjectId) {
+      setExpandedProjects(prev => new Set([...prev, selectedProjectId]));
+    }
+    if (selectedTeamId && selectedProjectId) {
+      const teamKey = `${selectedProjectId}-${selectedTeamId}`;
+      setExpandedTeams(prev => new Set([...prev, teamKey]));
+    }
+  }, [selectedProjectId, selectedTeamId]);
+
   const fetchProjects = async () => {
     try {
       setError(null);

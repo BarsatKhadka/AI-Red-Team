@@ -24,6 +24,85 @@ function Dashboard() {
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamComplete, setStreamComplete] = useState(false);
   const expandedProfileRef = useRef(false);
+  const [projects, setProjects] = useState([]);
+  const [isRestoring, setIsRestoring] = useState(true);
+
+  // Save state to localStorage whenever selections change
+  useEffect(() => {
+    if (!isRestoring) {
+      const state = {
+        projectId: selectedProject?.id || null,
+        teamId: selectedTeam?.id || null,
+        memberId: selectedMember?.id || null,
+        expandedProfile: expandedProfile,
+      };
+      localStorage.setItem('dashboardState', JSON.stringify(state));
+    }
+  }, [selectedProject?.id, selectedTeam?.id, selectedMember?.id, expandedProfile, isRestoring]);
+
+  // Restore state from localStorage on mount
+  useEffect(() => {
+    const fetchProjectsAndRestore = async () => {
+      try {
+        const response = await fetch('http://localhost:8000/projects');
+        if (response.ok) {
+          const projectsData = await response.json();
+          setProjects(projectsData);
+          
+          // Small delay to ensure components are mounted
+          await new Promise(resolve => setTimeout(resolve, 100));
+          
+          // Restore saved state
+          const savedState = localStorage.getItem('dashboardState');
+          if (savedState) {
+            try {
+              const state = JSON.parse(savedState);
+              
+              // Find and restore project
+              if (state.projectId) {
+                const project = projectsData.find(p => p.id === state.projectId);
+                if (project) {
+                  setSelectedProject(project);
+                  
+                  // Find and restore team
+                  if (state.teamId && project.teams) {
+                    const team = project.teams.find(t => t.id === state.teamId);
+                    if (team) {
+                      setSelectedTeam(team);
+                      setSelectedProject(project);
+                      
+                      // Find and restore member
+                      if (state.memberId && team.members) {
+                        const member = team.members.find(m => m.id === state.memberId);
+                        if (member) {
+                          // Small delay to ensure UI is ready
+                          setTimeout(() => {
+                            setSelectedMember(member);
+                            if (state.expandedProfile) {
+                              setExpandedProfile(true);
+                              expandedProfileRef.current = true;
+                            }
+                          }, 200);
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            } catch (e) {
+              console.warn('Failed to restore state:', e);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+      } finally {
+        setIsRestoring(false);
+      }
+    };
+
+    fetchProjectsAndRestore();
+  }, []);
 
   // Sync ref with state (backup sync, but we update ref directly in handlers)
   useEffect(() => {
