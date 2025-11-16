@@ -8,6 +8,7 @@ import NewProjectModal from '../components/NewProjectModal';
 import StreamingText from '../components/StreamingText';
 import AILoadingIndicator from '../components/AILoadingIndicator';
 import ParsingMessage from '../components/ParsingMessage';
+import { getMemberImage } from '../utils/memberImages';
 
 function Dashboard() {
   const [aiReply, setAiReply] = useState(null);
@@ -133,12 +134,23 @@ function Dashboard() {
     const wasExpanded = expandedProfileRef.current;
     console.log('Was expanded before message select:', wasExpanded);
     
+    // Only restart streaming if this is a new message (different from current)
+    const isNewMessage = !currentMessage || 
+      currentMessage.memberName !== messageData.memberName ||
+      currentMessage.messageText !== messageData.messageText ||
+      currentMessage.messageType !== messageData.messageType;
+    
     setAiReply(replyData);
     setCurrentMessage(messageData);
     setEditedReply(replyData?.reply || '');
     setIsEditing(false);
-    setIsStreaming(true);
-    setStreamComplete(false);
+    
+    // Only start streaming if it's a new message
+    if (isNewMessage) {
+      setIsStreaming(true);
+      setStreamComplete(false);
+    }
+    
     setIsParsing(false);
     setParsingComplete(false);
     setPromptText('');
@@ -348,9 +360,9 @@ function Dashboard() {
                 <div className="p-4 space-y-3">
                   {/* Categorized Message - Show the clicked version */}
                   <div className="flex items-start gap-3">
-                    {currentMessage.memberName === 'Alice' ? (
+                    {getMemberImage(currentMessage.memberName) ? (
                       <img 
-                        src="https://api.dicebear.com/7.x/avataaars/svg?seed=Alice&backgroundColor=b8b5ff"
+                        src={getMemberImage(currentMessage.memberName)}
                         alt={currentMessage.memberName}
                         className="w-8 h-8 rounded-full object-cover flex-shrink-0"
                       />
@@ -429,7 +441,10 @@ function Dashboard() {
                               {/* Send Options Dropdown */}
                               <div className="relative">
                                 <button
-                                  onClick={() => setShowSendOptions(!showSendOptions)}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setShowSendOptions(!showSendOptions);
+                                  }}
                                   className="px-3 py-1.5 bg-[#10B981] hover:bg-[#059669] text-white rounded font-medium text-xs flex items-center gap-1.5 transition-colors whitespace-nowrap"
                                 >
                                   <span>Send to {currentMessage.memberName}</span>
@@ -442,7 +457,8 @@ function Dashboard() {
                                   <div className="absolute right-0 top-full mt-2 bg-white border border-border-light rounded-lg shadow-xl min-w-[220px] z-50 overflow-hidden">
                                     <div className="py-1.5">
                                       <button
-                                        onClick={() => {
+                                        onClick={(e) => {
+                                          e.stopPropagation();
                                           const email = `${currentMessage.memberName.toLowerCase()}@outlook.com`;
                                           alert(`Reply sent to ${currentMessage.memberName} via Outlook (${email})`);
                                           setShowSendOptions(false);
@@ -460,7 +476,8 @@ function Dashboard() {
                                         </div>
                                       </button>
                                       <button
-                                        onClick={() => {
+                                        onClick={(e) => {
+                                          e.stopPropagation();
                                           alert(`Reply sent to ${currentMessage.memberName} via Slack`);
                                           setShowSendOptions(false);
                                         }}

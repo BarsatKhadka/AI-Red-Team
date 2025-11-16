@@ -1,5 +1,6 @@
 import { useMemo, useState, useEffect } from 'react';
 import AILoadingIndicator from './AILoadingIndicator';
+import { getMemberImage } from '../utils/memberImages';
 
 function MemberBioSummary({ member, project, team, compact = false, onExpand, onCollapse }) {
   const [isGenerating, setIsGenerating] = useState(true);
@@ -226,9 +227,9 @@ function MemberBioSummary({ member, project, team, compact = false, onExpand, on
     return (
       <div className="w-full bg-bg-card rounded-md border border-border-light p-4">
         <div className="flex items-start gap-4">
-          {member.name === 'Alice' ? (
+          {getMemberImage(member.name) ? (
             <img 
-              src="https://api.dicebear.com/7.x/avataaars/svg?seed=Alice&backgroundColor=b8b5ff"
+              src={getMemberImage(member.name)}
               alt={member.name}
               className="w-12 h-12 rounded-full object-cover flex-shrink-0"
             />
@@ -268,9 +269,9 @@ function MemberBioSummary({ member, project, team, compact = false, onExpand, on
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center gap-3">
-          {member.name === 'Alice' ? (
+          {getMemberImage(member.name) ? (
             <img 
-              src="https://api.dicebear.com/7.x/avataaars/svg?seed=Alice&backgroundColor=b8b5ff"
+              src={getMemberImage(member.name)}
               alt={member.name}
               className="w-8 h-8 rounded-full object-cover flex-shrink-0"
             />
@@ -357,9 +358,9 @@ function MemberBioSummary({ member, project, team, compact = false, onExpand, on
         </div>
       )}
       <div className="flex items-start gap-4 mb-4">
-        {member.name === 'Alice' ? (
+        {getMemberImage(member.name) ? (
           <img 
-            src="https://api.dicebear.com/7.x/avataaars/svg?seed=Alice&backgroundColor=b8b5ff"
+            src={getMemberImage(member.name)}
             alt={member.name}
             className="w-12 h-12 rounded-full object-cover flex-shrink-0"
           />

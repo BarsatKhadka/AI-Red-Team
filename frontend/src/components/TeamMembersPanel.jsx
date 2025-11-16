@@ -3,6 +3,7 @@ import ParsingMessage from './ParsingMessage';
 import CategorizingMessage from './CategorizingMessage';
 import AnimatedTag from './AnimatedTag';
 import DatePicker from './DatePicker';
+import { getMemberImage } from '../utils/memberImages';
 
 function TeamMembersPanel({ project, team, selectedMemberId, onMemberSelect, onMessageClick, documents }) {
   const [selectedMember, setSelectedMember] = useState(null);
@@ -206,9 +207,9 @@ function TeamMembersPanel({ project, team, selectedMemberId, onMemberSelect, onM
                   onClick={() => handleMemberClick(member)}
                 >
                   <div className="flex items-center gap-2 mb-2">
-                    {member.name === 'Alice' ? (
+                    {getMemberImage(member.name) ? (
                       <img 
-                        src="https://api.dicebear.com/7.x/avataaars/svg?seed=Alice&backgroundColor=b8b5ff"
+                        src={getMemberImage(member.name)}
                         alt={member.name}
                         className="w-8 h-8 rounded-full object-cover flex-shrink-0"
                       />
