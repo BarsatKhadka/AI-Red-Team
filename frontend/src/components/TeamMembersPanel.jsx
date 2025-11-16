@@ -264,21 +264,21 @@ function TeamMembersPanel({ project, team, selectedMemberId, onMemberSelect, onM
                                       const isParsed = parsedMessages.has(originalKey);
                                       
                                       return (
-                                        <div key={origIndex} className="p-3 bg-gradient-to-br from-bg-card to-bg-card/50 rounded-md border border-border-light shadow-sm">
+                                        <div key={origIndex} className="p-2 bg-gradient-to-br from-bg-card to-bg-card/50 rounded-md border border-border-light shadow-sm">
                                           <div className="flex items-center gap-2 mb-2">
-                                            <span className="text-xs font-medium text-text-primary">
+                                            <span className="text-[10px] font-medium text-text-primary">
                                               Original message on {originalMsg.source}
                                             </span>
                                             {isParsing && (
                                               <div className="flex items-center gap-1.5">
-                                                <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
-                                                <span className="text-xs text-text-tertiary italic">Parsing...</span>
+                                                <div className="w-1 h-1 bg-primary rounded-full animate-pulse" />
+                                                <span className="text-[10px] text-text-tertiary italic">Parsing...</span>
                                               </div>
                                             )}
                                             {isParsed && (
                                               <div className="flex items-center gap-1.5">
-                                                <div className="w-1.5 h-1.5 bg-success rounded-full" />
-                                                <span className="text-xs text-success">AI Analyzed</span>
+                                                <div className="w-1 h-1 bg-success rounded-full" />
+                                                <span className="text-[10px] text-success">AI Analyzed</span>
                                               </div>
                                             )}
                                           </div>
@@ -296,7 +296,7 @@ function TeamMembersPanel({ project, team, selectedMemberId, onMemberSelect, onM
                                               }}
                                             />
                                           ) : (
-                                            <p className="text-xs text-text-primary leading-relaxed whitespace-pre-wrap">{originalMsg.text}</p>
+                                            <p className="text-[10px] text-text-primary leading-relaxed whitespace-pre-wrap">{originalMsg.text}</p>
                                           )}
                                         </div>
                                       );
@@ -344,24 +344,24 @@ function TeamMembersPanel({ project, team, selectedMemberId, onMemberSelect, onM
                                   const isParsed = parsedMessages.has(originalKey);
                                   
                                   return (
-                                    <div className="p-3 bg-gradient-to-br from-bg-card to-bg-card/50 rounded-md border border-border-light mt-2 shadow-sm">
+                                    <div className="p-2 bg-gradient-to-br from-bg-card to-bg-card/50 rounded-md border border-border-light mt-2 shadow-sm">
                                       <div className="flex items-center gap-2 mb-2">
                                         {message.source && (
                                           <>
-                                            <span className="text-xs text-text-tertiary">•</span>
-                                            <span className="text-xs text-text-secondary capitalize">{message.source}</span>
+                                            <span className="text-[10px] text-text-tertiary">•</span>
+                                            <span className="text-[10px] text-text-secondary capitalize">{message.source}</span>
                                           </>
                                         )}
                                         {isParsing && (
                                           <div className="flex items-center gap-1.5 ml-auto">
-                                            <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
-                                            <span className="text-xs text-text-tertiary italic">Parsing...</span>
+                                            <div className="w-1 h-1 bg-primary rounded-full animate-pulse" />
+                                            <span className="text-[10px] text-text-tertiary italic">Parsing...</span>
                                           </div>
                                         )}
                                         {isParsed && (
                                           <div className="flex items-center gap-1.5 ml-auto">
-                                            <div className="w-1.5 h-1.5 bg-success rounded-full" />
-                                            <span className="text-xs text-success">AI Analyzed</span>
+                                            <div className="w-1 h-1 bg-success rounded-full" />
+                                            <span className="text-[10px] text-success">AI Analyzed</span>
                                           </div>
                                         )}
                                       </div>
@@ -379,7 +379,7 @@ function TeamMembersPanel({ project, team, selectedMemberId, onMemberSelect, onM
                                           }}
                                         />
                                       ) : (
-                                        <p className="text-xs text-text-primary leading-relaxed whitespace-pre-wrap">{message.original || message.text}</p>
+                                        <p className="text-[10px] text-text-primary leading-relaxed whitespace-pre-wrap">{message.original || message.text}</p>
                                       )}
                                     </div>
                                   );

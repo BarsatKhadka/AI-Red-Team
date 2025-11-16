@@ -1,6 +1,41 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
+import AILoadingIndicator from './AILoadingIndicator';
 
 function MemberBioSummary({ member, project, team, compact = false, onExpand, onCollapse }) {
+  const [isGenerating, setIsGenerating] = useState(true);
+  const [generationStep, setGenerationStep] = useState('analyzing');
+  
+  useEffect(() => {
+    if (!member) {
+      setIsGenerating(false);
+      return;
+    }
+    
+    // Reset generation state when member changes
+    setIsGenerating(true);
+    setGenerationStep('analyzing');
+    
+    // Simulate AI generating profile
+    const timer1 = setTimeout(() => {
+      setGenerationStep('processing');
+    }, 600);
+    
+    const timer2 = setTimeout(() => {
+      setGenerationStep('finalizing');
+    }, 1200);
+    
+    const timer3 = setTimeout(() => {
+      setIsGenerating(false);
+      setGenerationStep('complete');
+    }, 1800);
+    
+    return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+      clearTimeout(timer3);
+    };
+  }, [member]);
+  
   const bioData = useMemo(() => {
     if (!member) return null;
 
@@ -180,6 +215,51 @@ function MemberBioSummary({ member, project, team, compact = false, onExpand, on
 
   const detailedSummary = generateDetailedSummary();
 
+  // Show generation animation
+  if (isGenerating && member) {
+    const stepMessages = {
+      analyzing: 'Analyzing profile data...',
+      processing: 'Processing activity patterns...',
+      finalizing: 'Finalizing AI analysis...'
+    };
+    
+    return (
+      <div className="w-full bg-bg-card rounded-md border border-border-light p-4">
+        <div className="flex items-start gap-4">
+          {member.name === 'Alice' ? (
+            <img 
+              src="https://api.dicebear.com/7.x/avataaars/svg?seed=Alice&backgroundColor=b8b5ff"
+              alt={member.name}
+              className="w-12 h-12 rounded-full object-cover flex-shrink-0"
+            />
+          ) : (
+            <div className="w-12 h-12 rounded-full bg-avatar-alice flex items-center justify-center text-white font-semibold text-lg flex-shrink-0">
+              {member.name.charAt(0)}
+            </div>
+          )}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-3">
+              <h3 className="text-xl font-semibold text-text-primary">{member.name}</h3>
+              <div className="flex gap-1">
+                <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
+                <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" style={{ animationDelay: '150ms' }} />
+                <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" style={{ animationDelay: '300ms' }} />
+              </div>
+            </div>
+            <div className="bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20 rounded-lg p-4">
+              <AILoadingIndicator message={stepMessages[generationStep]} size="sm" />
+              <div className="mt-3 space-y-2">
+                <div className="h-2 bg-primary/20 rounded-full animate-pulse" style={{ width: '70%' }} />
+                <div className="h-2 bg-primary/20 rounded-full animate-pulse" style={{ width: '50%' }} />
+                <div className="h-2 bg-primary/20 rounded-full animate-pulse" style={{ width: '60%' }} />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // Compact version for when a message is selected
   if (compact) {
     return (
@@ -260,7 +340,7 @@ function MemberBioSummary({ member, project, team, compact = false, onExpand, on
 
   // Full version for default state or expanded
   return (
-    <div className="w-full bg-bg-card rounded-md border border-border-light p-4">
+    <div className="w-full bg-bg-card rounded-md border border-border-light p-4 animate-in fade-in">
       {onCollapse && (
         <div className="flex justify-end mb-2">
           <button
@@ -294,7 +374,10 @@ function MemberBioSummary({ member, project, team, compact = false, onExpand, on
             <span className="text-xs text-text-tertiary">•</span>
             <p className="text-sm text-text-secondary">{team?.name || 'Team'}</p>
             <span className="text-xs text-text-tertiary">•</span>
-            <p className="text-xs text-text-tertiary">AI Profile Analysis</p>
+            <div className="flex items-center gap-1.5">
+              <div className="w-1.5 h-1.5 bg-success rounded-full" />
+              <p className="text-xs text-success font-medium">AI Generated</p>
+            </div>
             <span className="text-xs text-text-tertiary">•</span>
             <a href="/memory" className="text-xs text-primary hover:underline">
               View Memory →
