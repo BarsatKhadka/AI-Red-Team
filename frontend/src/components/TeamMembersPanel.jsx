@@ -1,16 +1,16 @@
 import { useState, useEffect } from 'react';
+import ParsingMessage from './ParsingMessage';
 import CategorizingMessage from './CategorizingMessage';
 import AnimatedTag from './AnimatedTag';
-import ParsingMessage from './ParsingMessage';
 
 function TeamMembersPanel({ project, team, selectedMemberId, onMemberSelect, onMessageClick, documents }) {
   const [selectedMember, setSelectedMember] = useState(null);
   const [expandedMember, setExpandedMember] = useState(null);
   const [expandedOriginalMessages, setExpandedOriginalMessages] = useState(new Set());
-  const [categorizingMessages, setCategorizingMessages] = useState(new Set());
-  const [categorizedMessages, setCategorizedMessages] = useState(new Set());
   const [parsingMessages, setParsingMessages] = useState(new Set());
   const [parsedMessages, setParsedMessages] = useState(new Set());
+  const [categorizingMessages, setCategorizingMessages] = useState(new Set());
+  const [categorizedMessages, setCategorizedMessages] = useState(new Set());
 
   // Automatically expand member when selected from sidebar
   useEffect(() => {
@@ -24,6 +24,21 @@ function TeamMembersPanel({ project, team, selectedMemberId, onMemberSelect, onM
         if (member.messages && member.messages.length > 0) {
           const messageKeys = member.messages.map((_, msgIndex) => `${member.id}-${msgIndex}`);
           setExpandedOriginalMessages(new Set(messageKeys));
+          
+          // Start categorization animation for messages with categorized versions (only if not already categorized)
+          member.messages.forEach((msg, msgIndex) => {
+            const messageKey = `${member.id}-${msgIndex}`;
+            if (msg.categorizedVersions && msg.categorizedVersions.length > 0) {
+              // Only trigger animation if not already categorized
+              setCategorizedMessages(prev => {
+                if (!prev.has(messageKey)) {
+                  // Not categorized yet, start the animation
+                  setCategorizingMessages(catPrev => new Set([...catPrev, messageKey]));
+                }
+                return prev;
+              });
+            }
+          });
           
           // Start parsing all original messages
           member.messages.forEach((msg, msgIndex) => {
@@ -94,6 +109,21 @@ function TeamMembersPanel({ project, team, selectedMemberId, onMemberSelect, onM
       if (member.messages && member.messages.length > 0) {
         const messageKeys = member.messages.map((_, msgIndex) => `${member.id}-${msgIndex}`);
         setExpandedOriginalMessages(new Set(messageKeys));
+        
+        // Start categorization animation for messages with categorized versions (only if not already categorized)
+        member.messages.forEach((msg, msgIndex) => {
+          const messageKey = `${member.id}-${msgIndex}`;
+          if (msg.categorizedVersions && msg.categorizedVersions.length > 0) {
+            // Only trigger animation if not already categorized
+            setCategorizedMessages(prev => {
+              if (!prev.has(messageKey)) {
+                // Not categorized yet, start the animation
+                setCategorizingMessages(catPrev => new Set([...catPrev, messageKey]));
+              }
+              return prev;
+            });
+          }
+        });
         
         // Start parsing all original messages
         member.messages.forEach((msg, msgIndex) => {
@@ -248,13 +278,14 @@ function TeamMembersPanel({ project, team, selectedMemberId, onMemberSelect, onM
                                             {isParsed && (
                                               <div className="flex items-center gap-1.5">
                                                 <div className="w-1.5 h-1.5 bg-success rounded-full" />
-                                                <span className="text-xs text-success">Parsed</span>
+                                                <span className="text-xs text-success">AI Analyzed</span>
                                               </div>
                                             )}
                                           </div>
                                           {isParsing ? (
                                             <ParsingMessage
                                               text={originalMsg.text}
+                                              showContextAnalysis={false}
                                               onComplete={() => {
                                                 setParsedMessages(prev => new Set([...prev, originalKey]));
                                                 setParsingMessages(prev => {
@@ -330,13 +361,14 @@ function TeamMembersPanel({ project, team, selectedMemberId, onMemberSelect, onM
                                         {isParsed && (
                                           <div className="flex items-center gap-1.5 ml-auto">
                                             <div className="w-1.5 h-1.5 bg-success rounded-full" />
-                                            <span className="text-xs text-success">Parsed</span>
+                                            <span className="text-xs text-success">AI Analyzed</span>
                                           </div>
                                         )}
                                       </div>
                                       {isParsing ? (
                                         <ParsingMessage
                                           text={message.original || message.text}
+                                          showContextAnalysis={false}
                                           onComplete={() => {
                                             setParsedMessages(prev => new Set([...prev, originalKey]));
                                             setParsingMessages(prev => {

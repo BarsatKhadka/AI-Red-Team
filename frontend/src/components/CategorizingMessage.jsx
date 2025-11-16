@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import AnimatedTag from './AnimatedTag';
 import AILoadingIndicator from './AILoadingIndicator';
+import AIContextIndicator from './AIContextIndicator';
 
 /**
  * CategorizingMessage Component
@@ -65,7 +66,8 @@ function CategorizingMessage({
     return (
       <div className="space-y-2">
         <div className="flex items-center gap-2 mb-2">
-          <span className="text-xs font-semibold text-success">✓ Categorized</span>
+          <div className="w-2 h-2 bg-success rounded-full" />
+          <span className="text-xs font-semibold text-success">AI Categorized</span>
           <span className="text-xs text-text-tertiary">
             {categorizedVersions.length} version{categorizedVersions.length !== 1 ? 's' : ''} found
           </span>
@@ -80,6 +82,16 @@ function CategorizingMessage({
             />
           ))}
         </div>
+        <div className="mt-2 pt-2 border-t border-primary/10">
+          <AIContextIndicator
+            analysisType="complete"
+            references={[
+              { icon: '💬', label: 'Past Messages' },
+              { icon: '🧠', label: 'Member Memory' },
+              { icon: '📁', label: 'Project Files' }
+            ]}
+          />
+        </div>
       </div>
     );
   }
@@ -88,13 +100,13 @@ function CategorizingMessage({
     <div className="space-y-3 p-4 bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 rounded-lg border border-primary/20 ai-processing">
       {currentStep === 'analyzing' && (
         <div className="space-y-3">
-          <AILoadingIndicator message="Analyzing message..." size="sm" />
-          <div className="space-y-1.5">
-            <div className="h-1.5 bg-primary/20 rounded-full animate-pulse" style={{ width: '60%' }} />
-            <div className="h-1.5 bg-primary/20 rounded-full animate-pulse" style={{ width: '80%' }} />
-          </div>
+          <AILoadingIndicator message="AI analyzing message..." size="sm" />
+          <AIContextIndicator
+            analysisType="analyzing"
+            references={[]}
+          />
           <p className="text-xs text-text-secondary italic animate-pulse">
-            Detecting message intent and context...
+            AI is cross-referencing with past messages and project context...
           </p>
         </div>
       )}
@@ -102,7 +114,7 @@ function CategorizingMessage({
       {currentStep === 'categorizing' && (
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <AILoadingIndicator message="Categorizing..." size="sm" />
+            <AILoadingIndicator message="AI categorizing..." size="sm" />
           </div>
           <div className="flex flex-wrap gap-2">
             {categorizedVersions.map((version, index) => (
@@ -114,9 +126,16 @@ function CategorizingMessage({
               />
             ))}
           </div>
-          <p className="text-xs text-text-secondary italic">
-            Identifying {categorizedVersions.length} distinct message type{categorizedVersions.length !== 1 ? 's' : ''}...
-          </p>
+          <div className="bg-primary/5 rounded p-2 border border-primary/10">
+            <p className="text-xs text-text-secondary italic mb-1">
+              AI identified {categorizedVersions.length} distinct message type{categorizedVersions.length !== 1 ? 's' : ''} by analyzing patterns from:
+            </p>
+            <div className="flex flex-wrap gap-1 mt-1">
+              <span className="text-xs px-1.5 py-0.5 bg-primary/10 text-primary rounded">💬 Past Messages</span>
+              <span className="text-xs px-1.5 py-0.5 bg-primary/10 text-primary rounded">🧠 Member Memory</span>
+              <span className="text-xs px-1.5 py-0.5 bg-primary/10 text-primary rounded">📁 Project Files</span>
+            </div>
+          </div>
         </div>
       )}
     </div>

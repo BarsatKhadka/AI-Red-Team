@@ -295,6 +295,10 @@ function MemberBioSummary({ member, project, team, compact = false, onExpand, on
             <p className="text-sm text-text-secondary">{team?.name || 'Team'}</p>
             <span className="text-xs text-text-tertiary">•</span>
             <p className="text-xs text-text-tertiary">AI Profile Analysis</p>
+            <span className="text-xs text-text-tertiary">•</span>
+            <a href="/memory" className="text-xs text-primary hover:underline">
+              View Memory →
+            </a>
           </div>
           
           {/* Quick Stats */}
@@ -320,20 +324,37 @@ function MemberBioSummary({ member, project, team, compact = false, onExpand, on
       {detailedSummary && (
         <div className="space-y-4 border-t border-border-light pt-4">
           {/* AI Analysis Header */}
-          <div className="bg-primary-light/30 border border-primary/20 rounded-lg p-3 mb-4">
+          <div className="bg-gradient-to-r from-primary-light/30 to-primary/10 border border-primary/20 rounded-lg p-3 mb-4">
             <div className="flex items-start gap-2">
               <div className="flex-shrink-0 w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center mt-0.5">
                 <span className="text-primary text-xs">AI</span>
               </div>
               <div className="flex-1">
-                <p className="text-xs font-semibold text-primary mb-1">AI-Generated Profile Analysis</p>
-                <p className="text-xs text-text-secondary leading-relaxed">
-                  Based on analysis of <span className="font-medium text-text-primary">{bioData.messagesCount} messages</span>, 
+                <div className="flex items-center gap-2 mb-1">
+                  <p className="text-xs font-semibold text-primary">AI-Generated Profile Analysis</p>
+                  <div className="flex gap-1">
+                    <div className="w-1 h-1 bg-primary rounded-full animate-pulse" />
+                    <div className="w-1 h-1 bg-primary rounded-full animate-pulse" style={{ animationDelay: '150ms' }} />
+                    <div className="w-1 h-1 bg-primary rounded-full animate-pulse" style={{ animationDelay: '300ms' }} />
+                  </div>
+                </div>
+                <p className="text-xs text-text-secondary leading-relaxed mb-2">
+                  AI analyzed <span className="font-medium text-text-primary">{bioData.messagesCount} messages</span>, 
                   {' '}<span className="font-medium text-text-primary">{bioData.progressCount} progress updates</span>, 
                   {' '}<span className="font-medium text-text-primary">{bioData.clarifyCount} clarification requests</span>, 
                   {' '}<span className="font-medium text-text-primary">{bioData.availabilityCount} availability reports</span>, 
-                  and task completion data ({bioData.completedTasks}/{bioData.totalTasks} tasks, {bioData.completionPercent}% complete).
+                  and cross-referenced with project files and past interactions.
                 </p>
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  <span className="text-xs px-2 py-0.5 bg-primary/10 text-primary rounded">📊 Task Data</span>
+                  <span className="text-xs px-2 py-0.5 bg-primary/10 text-primary rounded">💬 Message History</span>
+                  <span className="text-xs px-2 py-0.5 bg-primary/10 text-primary rounded">📁 Project Context</span>
+                </div>
+                <div className="mt-2 pt-2 border-t border-primary/10">
+                  <a href="/memory" className="text-xs text-primary hover:underline inline-flex items-center gap-1">
+                    <span>View detailed AI memory and context →</span>
+                  </a>
+                </div>
               </div>
             </div>
           </div>

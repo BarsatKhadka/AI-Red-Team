@@ -22,9 +22,15 @@ function ProjectFiles() {
     <div className="relative bg-bg-card">
       <div className="h-16 flex items-center justify-between px-4 border-b border-border-light">
         <div className="flex flex-col">
-          <span className="text-sm font-semibold text-text-primary">Project Files</span>
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-semibold text-text-primary">Project Files</span>
+            <div className="flex gap-1">
+              <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
+              <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" style={{ animationDelay: '150ms' }} />
+            </div>
+          </div>
           <span className="text-xs text-text-secondary mt-0.5">
-            Total files: {fileCount}
+            {fileCount} files • AI actively referencing
           </span>
         </div>
         

@@ -1,13 +1,16 @@
 import { useState, useEffect } from 'react';
+import AIContextIndicator from './AIContextIndicator';
 
 /**
  * ParsingMessage Component
  * Shows original message being parsed line by line with animation
  */
-function ParsingMessage({ text, onComplete, className = '' }) {
+function ParsingMessage({ text, onComplete, className = '', showContextAnalysis = false }) {
   const [displayedLines, setDisplayedLines] = useState([]);
   const [currentLineIndex, setCurrentLineIndex] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
+  const [contextReferences, setContextReferences] = useState([]);
+  const [showContext, setShowContext] = useState(false);
 
   useEffect(() => {
     if (!text) {
@@ -67,8 +70,42 @@ function ParsingMessage({ text, onComplete, className = '' }) {
         setTimeout(showNextLine, delay);
       } else {
         setIsComplete(true);
+        
+        // Generate context references after parsing
+        if (showContextAnalysis) {
+          const refs = [];
+          const textLower = text.toLowerCase();
+          
+          if (textLower.includes('api') || textLower.includes('endpoint')) {
+            refs.push({ icon: '🔌', label: 'API Documentation' });
+          }
+          if (textLower.includes('design') || textLower.includes('ui') || textLower.includes('figma')) {
+            refs.push({ icon: '🎨', label: 'Design Files' });
+          }
+          if (textLower.includes('deadline') || textLower.includes('timeline') || textLower.includes('schedule')) {
+            refs.push({ icon: '📅', label: 'Project Timeline' });
+          }
+          if (textLower.includes('blocked') || textLower.includes('issue') || textLower.includes('problem')) {
+            refs.push({ icon: '⚠️', label: 'Past Blockers' });
+          }
+          if (textLower.includes('clarify') || textLower.includes('question')) {
+            refs.push({ icon: '❓', label: 'Similar Questions' });
+          }
+          
+          // Always add some default references
+          if (refs.length === 0) {
+            refs.push({ icon: '📁', label: 'Project Files' });
+            refs.push({ icon: '💬', label: 'Past Messages' });
+          } else {
+            refs.push({ icon: '💬', label: 'Past Interactions' });
+          }
+          
+          setContextReferences(refs);
+          setShowContext(true);
+        }
+        
         if (onComplete) {
-          setTimeout(() => onComplete(), 200);
+          setTimeout(() => onComplete(), 500);
         }
       }
     };
@@ -77,7 +114,7 @@ function ParsingMessage({ text, onComplete, className = '' }) {
     const timeout = setTimeout(showNextLine, 100);
 
     return () => clearTimeout(timeout);
-  }, [text, onComplete]);
+  }, [text, onComplete, showContextAnalysis]);
 
   if (!text) return null;
 
@@ -115,6 +152,16 @@ function ParsingMessage({ text, onComplete, className = '' }) {
             <div className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.4s', animationDuration: '1s' }} />
           </div>
           <span className="text-xs text-text-tertiary italic">Analyzing next segment...</span>
+        </div>
+      )}
+
+      {/* Context Analysis */}
+      {isComplete && showContext && showContextAnalysis && contextReferences.length > 0 && (
+        <div className="mt-3 pt-3 border-t border-primary/20 bg-gradient-to-r from-primary/5 to-transparent rounded-lg p-3">
+          <AIContextIndicator
+            analysisType="complete"
+            references={contextReferences}
+          />
         </div>
       )}
     </div>

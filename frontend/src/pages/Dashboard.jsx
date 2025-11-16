@@ -29,6 +29,7 @@ function Dashboard() {
   const expandedProfileRef = useRef(false);
   const [projects, setProjects] = useState([]);
   const [isRestoring, setIsRestoring] = useState(true);
+  const [promptText, setPromptText] = useState('');
 
   // Save state to localStorage whenever selections change
   useEffect(() => {
@@ -138,8 +139,9 @@ function Dashboard() {
     setIsEditing(false);
     setIsStreaming(true);
     setStreamComplete(false);
-    setIsParsing(true);
+    setIsParsing(false);
     setParsingComplete(false);
+    setPromptText('');
     
     // Explicitly preserve expandedProfile state when a message is selected
     // Use a longer timeout to ensure this happens after ALL state updates
@@ -257,6 +259,8 @@ function Dashboard() {
         memberName, 
         messageType, 
         messageText,
+        text: messageText,
+        messageText: messageText,
         projectName,
         teamName,
         messageSource: messageSource || 'outlook'
@@ -321,26 +325,28 @@ function Dashboard() {
             
             {/* Member Bio Summary - Profile Analysis */}
             {selectedMember && (
-              <div 
-                className="flex-shrink-0 border-b border-border-light bg-bg-card px-6 py-3"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <MemberBioSummary 
-                  member={selectedMember}
-                  project={selectedProject}
-                  team={selectedTeam}
-                  compact={currentMessage !== null && expandedProfile === false}
-                  onExpand={handleExpandProfile}
-                  onCollapse={handleCollapseProfile}
-                />
-              </div>
+              <>
+                <div 
+                  className="flex-shrink-0 border-b border-border-light bg-bg-card px-6 py-3"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <MemberBioSummary 
+                    member={selectedMember}
+                    project={selectedProject}
+                    team={selectedTeam}
+                    compact={currentMessage !== null && expandedProfile === false}
+                    onExpand={handleExpandProfile}
+                    onCollapse={handleCollapseProfile}
+                  />
+                </div>
+              </>
             )}
             
             {/* AI Conversation - Below Profile Analysis */}
             {currentMessage && (
               <div className="flex-1 overflow-y-auto bg-bg border-b border-border-light">
                 <div className="p-4 space-y-3">
-                  {/* Original Message */}
+                  {/* Categorized Message - Show the clicked version */}
                   <div className="flex items-start gap-3">
                     {currentMessage.memberName === 'Alice' ? (
                       <img 
@@ -362,7 +368,7 @@ function Dashboard() {
                         {currentMessage.messageSource && (
                           <>
                             <span className="text-xs text-text-tertiary">•</span>
-                            <span className="text-xs text-text-secondary capitalize">{currentMessage.messageSource}</span>
+                            <span className="text-xs font-medium text-text-secondary capitalize">{currentMessage.messageSource}</span>
                           </>
                         )}
                       </div>
@@ -371,31 +377,8 @@ function Dashboard() {
                           <span className={`text-xs font-medium px-2.5 py-1 rounded-sm ${getMessageTypeColor(currentMessage.messageType)}`}>
                             {currentMessage.messageType}
                           </span>
-                          {isParsing && !parsingComplete && (
-                            <div className="flex items-center gap-1.5">
-                              <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
-                              <span className="text-xs text-text-tertiary italic">Parsing original message...</span>
-                            </div>
-                          )}
-                          {parsingComplete && (
-                            <div className="flex items-center gap-1.5">
-                              <div className="w-1.5 h-1.5 bg-success rounded-full" />
-                              <span className="text-xs text-success">Parsed</span>
-                            </div>
-                          )}
                         </div>
-                        {isParsing && !parsingComplete ? (
-                          <ParsingMessage
-                            text={currentMessage.messageText}
-                            onComplete={() => {
-                              setParsingComplete(true);
-                              setIsParsing(false);
-                            }}
-                            className="mt-2"
-                          />
-                        ) : (
-                          <p className="text-sm text-text-primary leading-relaxed whitespace-pre-wrap">{currentMessage.messageText}</p>
-                        )}
+                        <p className="text-sm text-text-primary leading-relaxed whitespace-pre-wrap">{currentMessage.messageText}</p>
                       </div>
                     </div>
                   </div>
@@ -413,11 +396,11 @@ function Dashboard() {
                       </div>
                       <div className="flex-1">
                         <div className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-md p-4 border border-primary/20 shadow-sm">
-                          <AILoadingIndicator message="AI is generating reply..." size="sm" />
+                          <AILoadingIndicator message="AI is analyzing..." size="sm" />
                           <div className="mt-3 space-y-2">
                             <div className="h-2 bg-primary/20 rounded-full animate-pulse" style={{ width: '60%' }} />
-                            <div className="h-2 bg-primary/20 rounded-full animate-pulse" style={{ width: '80%' }} />
-                            <div className="h-2 bg-primary/20 rounded-full animate-pulse" style={{ width: '40%' }} />
+                            <div className="h-2 bg-primary/20 rounded-full animate-pulse mt-2" style={{ width: '80%' }} />
+                            <div className="h-2 bg-primary/20 rounded-full animate-pulse mt-2" style={{ width: '40%' }} />
                           </div>
                         </div>
                       </div>
@@ -574,21 +557,73 @@ function Dashboard() {
                                   <span className="text-xs font-medium text-success">AI reply complete</span>
                                 </div>
                                 <p className="text-sm text-text-primary leading-relaxed whitespace-pre-wrap">{aiReply.reply || ''}</p>
-                                {aiReply.sourceDocuments && aiReply.sourceDocuments.length > 0 && (
-                                  <div className="mt-3 pt-3 border-t border-primary/20">
-                                    <p className="text-xs font-medium text-text-secondary mb-2">Sources used:</p>
-                                    <div className="flex flex-wrap gap-1.5">
-                                      {aiReply.sourceDocuments.map((doc, idx) => (
-                                        <span
-                                          key={idx}
-                                          className="text-xs px-2 py-1 bg-primary/10 text-primary rounded border border-primary/20"
-                                        >
-                                          {doc}
-                                        </span>
-                                      ))}
-                                    </div>
+                                
+                                {/* Prompt Input to Modify AI Reply - Inside the box */}
+                                <div className="mt-4 pt-4 border-t border-primary/20">
+                                  <div className="mb-2">
+                                    <label className="text-xs font-medium text-text-secondary mb-1 block">
+                                      Prompt AI to Modify Reply
+                                    </label>
                                   </div>
-                                )}
+                                  <textarea
+                                    value={promptText}
+                                    onChange={(e) => setPromptText(e.target.value)}
+                                    className="w-full px-3 py-2 border border-border-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm resize-none bg-bg"
+                                    rows="2"
+                                    placeholder="e.g., Make it more concise, add more technical details..."
+                                  />
+                                  <div className="flex gap-2 mt-2 justify-end">
+                                    <button
+                                      onClick={() => setPromptText('')}
+                                      className="px-3 py-1.5 bg-border-medium text-text-primary rounded hover:bg-border-light text-xs transition-colors"
+                                    >
+                                      Clear
+                                    </button>
+                                    <button
+                                      onClick={async () => {
+                                        if (!currentMessage || !promptText.trim()) return;
+                                        setLoading(true);
+                                        setIsStreaming(true);
+                                        setStreamComplete(false);
+                                        setAiReply(null);
+                                        
+                                        try {
+                                          const endpoint = currentMessage.messageType === '@clarify' 
+                                            ? 'http://localhost:8000/clarify-reply'
+                                            : 'http://localhost:8000/agent/reply';
+                                          
+                                          const response = await fetch(endpoint, {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({
+                                              message_text: currentMessage.text || currentMessage.messageText || '',
+                                              member_name: currentMessage.memberName,
+                                              message_type: currentMessage.messageType,
+                                              project_name: selectedProject?.name || '',
+                                              team_name: selectedTeam?.name || '',
+                                              modification_prompt: promptText,
+                                              documents: {}
+                                            })
+                                          });
+                                          
+                                          if (response.ok) {
+                                            const data = await response.json();
+                                            setAiReply(data);
+                                            setPromptText('');
+                                          }
+                                        } catch (error) {
+                                          console.error('Error fetching AI reply:', error);
+                                        } finally {
+                                          setLoading(false);
+                                        }
+                                      }}
+                                      disabled={!promptText.trim() || loading}
+                                      className="px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                      Update AI Reply
+                                    </button>
+                                  </div>
+                                </div>
                               </div>
                             )}
                           </div>
