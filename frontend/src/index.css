@@ -57,11 +57,6 @@ body {
   gap: 8px;
 }
 
-.nav-logo::before {
-  content: '🛡️';
-  color: #4F46E5;
-}
-
 .nav-links {
   display: flex;
   gap: 8px;

@@ -4,6 +4,7 @@ import StaticFilesPage from './pages/StaticFilesPage';
 import ComponentShowcase from './pages/ComponentShowcase';
 import PricingPage from './pages/PricingPage';
 import MemoryPage from './pages/MemoryPage';
+import Logo from './components/Logo';
 import './styles/pages.css';
 
 function App() {
@@ -48,9 +49,16 @@ function App() {
       {/* Navigation */}
       <nav className="app-nav">
         <div className="nav-content">
-          <h2 className="nav-logo" onClick={() => handleNavigation('dashboard')} style={{ cursor: 'pointer' }}>
-            AI Red Team
-          </h2>
+          <div 
+            className="nav-logo" 
+            onClick={() => handleNavigation('dashboard')} 
+            style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px' }}
+          >
+            <Logo size={32} />
+            <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '600', background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+              ProjectOps Studio
+            </h2>
+          </div>
           <div className="nav-links">
             <button 
               onClick={() => handleNavigation('dashboard')}
