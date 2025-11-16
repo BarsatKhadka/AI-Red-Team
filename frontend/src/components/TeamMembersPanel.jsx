@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import CategorizingMessage from './CategorizingMessage';
 import AnimatedTag from './AnimatedTag';
+import ParsingMessage from './ParsingMessage';
 
 function TeamMembersPanel({ project, team, selectedMemberId, onMemberSelect, onMessageClick, documents }) {
   const [selectedMember, setSelectedMember] = useState(null);
@@ -8,6 +9,8 @@ function TeamMembersPanel({ project, team, selectedMemberId, onMemberSelect, onM
   const [expandedOriginalMessages, setExpandedOriginalMessages] = useState(new Set());
   const [categorizingMessages, setCategorizingMessages] = useState(new Set());
   const [categorizedMessages, setCategorizedMessages] = useState(new Set());
+  const [parsingMessages, setParsingMessages] = useState(new Set());
+  const [parsedMessages, setParsedMessages] = useState(new Set());
 
   // Automatically expand member when selected from sidebar
   useEffect(() => {
@@ -16,6 +19,27 @@ function TeamMembersPanel({ project, team, selectedMemberId, onMemberSelect, onM
       if (member) {
         setExpandedMember(member.id);
         setSelectedMember(member.id);
+        
+        // Auto-expand all original messages for this member
+        if (member.messages && member.messages.length > 0) {
+          const messageKeys = member.messages.map((_, msgIndex) => `${member.id}-${msgIndex}`);
+          setExpandedOriginalMessages(new Set(messageKeys));
+          
+          // Start parsing all original messages
+          member.messages.forEach((msg, msgIndex) => {
+            const messageKey = `${member.id}-${msgIndex}`;
+            if (msg.originalMessages && msg.originalMessages.length > 0) {
+              msg.originalMessages.forEach((_, origIndex) => {
+                const originalKey = `${messageKey}-original-${origIndex}`;
+                setParsingMessages(prev => new Set([...prev, originalKey]));
+              });
+            } else if (msg.original || msg.text) {
+              const originalKey = `${messageKey}-original-0`;
+              setParsingMessages(prev => new Set([...prev, originalKey]));
+            }
+          });
+        }
+        
         // Find the member object and call onMemberSelect
         if (onMemberSelect) {
           onMemberSelect(member);
@@ -65,6 +89,27 @@ function TeamMembersPanel({ project, team, selectedMemberId, onMemberSelect, onM
     } else {
       setExpandedMember(member.id);
       setSelectedMember(member.id);
+      
+      // Auto-expand all original messages for this member
+      if (member.messages && member.messages.length > 0) {
+        const messageKeys = member.messages.map((_, msgIndex) => `${member.id}-${msgIndex}`);
+        setExpandedOriginalMessages(new Set(messageKeys));
+        
+        // Start parsing all original messages
+        member.messages.forEach((msg, msgIndex) => {
+          const messageKey = `${member.id}-${msgIndex}`;
+          if (msg.originalMessages && msg.originalMessages.length > 0) {
+            msg.originalMessages.forEach((_, origIndex) => {
+              const originalKey = `${messageKey}-original-${origIndex}`;
+              setParsingMessages(prev => new Set([...prev, originalKey]));
+            });
+          } else if (msg.original || msg.text) {
+            const originalKey = `${messageKey}-original-0`;
+            setParsingMessages(prev => new Set([...prev, originalKey]));
+          }
+        });
+      }
+      
       if (onMemberSelect) {
         onMemberSelect(member);
       }
@@ -156,6 +201,13 @@ function TeamMembersPanel({ project, team, selectedMemberId, onMemberSelect, onM
                                       newExpanded.delete(messageKey);
                                     } else {
                                       newExpanded.add(messageKey);
+                                      // Start parsing when expanded
+                                      message.originalMessages.forEach((_, origIndex) => {
+                                        const originalKey = `${messageKey}-original-${origIndex}`;
+                                        if (!parsedMessages.has(originalKey)) {
+                                          setParsingMessages(prev => new Set([...prev, originalKey]));
+                                        }
+                                      });
                                     }
                                     setExpandedOriginalMessages(newExpanded);
                                   }}
@@ -176,16 +228,48 @@ function TeamMembersPanel({ project, team, selectedMemberId, onMemberSelect, onM
                                 
                                 {isOriginalExpanded && (
                                   <div className="space-y-2 pl-2">
-                                    {message.originalMessages.map((originalMsg, origIndex) => (
-                                      <div key={origIndex} className="p-3 bg-bg rounded-md border border-border-light">
-                                        <div className="flex items-center gap-2 mb-2">
-                                          <span className="text-xs font-medium text-text-primary">
-                                            Original message on {originalMsg.source}
-                                          </span>
+                                    {message.originalMessages.map((originalMsg, origIndex) => {
+                                      const originalKey = `${messageKey}-original-${origIndex}`;
+                                      const isParsing = parsingMessages.has(originalKey) && !parsedMessages.has(originalKey);
+                                      const isParsed = parsedMessages.has(originalKey);
+                                      
+                                      return (
+                                        <div key={origIndex} className="p-3 bg-gradient-to-br from-bg-card to-bg-card/50 rounded-md border border-border-light shadow-sm">
+                                          <div className="flex items-center gap-2 mb-2">
+                                            <span className="text-xs font-medium text-text-primary">
+                                              Original message on {originalMsg.source}
+                                            </span>
+                                            {isParsing && (
+                                              <div className="flex items-center gap-1.5">
+                                                <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
+                                                <span className="text-xs text-text-tertiary italic">Parsing...</span>
+                                              </div>
+                                            )}
+                                            {isParsed && (
+                                              <div className="flex items-center gap-1.5">
+                                                <div className="w-1.5 h-1.5 bg-success rounded-full" />
+                                                <span className="text-xs text-success">Parsed</span>
+                                              </div>
+                                            )}
+                                          </div>
+                                          {isParsing ? (
+                                            <ParsingMessage
+                                              text={originalMsg.text}
+                                              onComplete={() => {
+                                                setParsedMessages(prev => new Set([...prev, originalKey]));
+                                                setParsingMessages(prev => {
+                                                  const newSet = new Set(prev);
+                                                  newSet.delete(originalKey);
+                                                  return newSet;
+                                                });
+                                              }}
+                                            />
+                                          ) : (
+                                            <p className="text-xs text-text-primary leading-relaxed whitespace-pre-wrap">{originalMsg.text}</p>
+                                          )}
                                         </div>
-                                        <p className="text-xs text-text-primary leading-relaxed">{originalMsg.text}</p>
-                                      </div>
-                                    ))}
+                                      );
+                                    })}
                                   </div>
                                 )}
                               </div>
@@ -202,6 +286,11 @@ function TeamMembersPanel({ project, team, selectedMemberId, onMemberSelect, onM
                                       newExpanded.delete(messageKey);
                                     } else {
                                       newExpanded.add(messageKey);
+                                      // Start parsing when expanded
+                                      const originalKey = `${messageKey}-original-0`;
+                                      if (!parsedMessages.has(originalKey)) {
+                                        setParsingMessages(prev => new Set([...prev, originalKey]));
+                                      }
                                     }
                                     setExpandedOriginalMessages(newExpanded);
                                   }}
@@ -218,19 +307,51 @@ function TeamMembersPanel({ project, team, selectedMemberId, onMemberSelect, onM
                                   </svg>
                                 </button>
                                 
-                                {isOriginalExpanded && (
-                                  <div className="p-3 bg-bg rounded-md border border-border-light mt-2">
-                                    <div className="flex items-center gap-2 mb-2">
-                                      {message.source && (
-                                        <>
-                                          <span className="text-xs text-text-tertiary">•</span>
-                                          <span className="text-xs text-text-secondary capitalize">{message.source}</span>
-                                        </>
+                                {isOriginalExpanded && (() => {
+                                  const originalKey = `${messageKey}-original-0`;
+                                  const isParsing = parsingMessages.has(originalKey) && !parsedMessages.has(originalKey);
+                                  const isParsed = parsedMessages.has(originalKey);
+                                  
+                                  return (
+                                    <div className="p-3 bg-gradient-to-br from-bg-card to-bg-card/50 rounded-md border border-border-light mt-2 shadow-sm">
+                                      <div className="flex items-center gap-2 mb-2">
+                                        {message.source && (
+                                          <>
+                                            <span className="text-xs text-text-tertiary">•</span>
+                                            <span className="text-xs text-text-secondary capitalize">{message.source}</span>
+                                          </>
+                                        )}
+                                        {isParsing && (
+                                          <div className="flex items-center gap-1.5 ml-auto">
+                                            <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
+                                            <span className="text-xs text-text-tertiary italic">Parsing...</span>
+                                          </div>
+                                        )}
+                                        {isParsed && (
+                                          <div className="flex items-center gap-1.5 ml-auto">
+                                            <div className="w-1.5 h-1.5 bg-success rounded-full" />
+                                            <span className="text-xs text-success">Parsed</span>
+                                          </div>
+                                        )}
+                                      </div>
+                                      {isParsing ? (
+                                        <ParsingMessage
+                                          text={message.original || message.text}
+                                          onComplete={() => {
+                                            setParsedMessages(prev => new Set([...prev, originalKey]));
+                                            setParsingMessages(prev => {
+                                              const newSet = new Set(prev);
+                                              newSet.delete(originalKey);
+                                              return newSet;
+                                            });
+                                          }}
+                                        />
+                                      ) : (
+                                        <p className="text-xs text-text-primary leading-relaxed whitespace-pre-wrap">{message.original || message.text}</p>
                                       )}
                                     </div>
-                                    <p className="text-xs text-text-primary leading-relaxed">{message.original || message.text}</p>
-                                  </div>
-                                )}
+                                  );
+                                })()}
                               </div>
                             )}
                             

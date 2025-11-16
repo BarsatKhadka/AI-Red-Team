@@ -7,6 +7,7 @@ import SuggestionBox from '../components/SuggestionBox';
 import NewProjectModal from '../components/NewProjectModal';
 import StreamingText from '../components/StreamingText';
 import AILoadingIndicator from '../components/AILoadingIndicator';
+import ParsingMessage from '../components/ParsingMessage';
 
 function Dashboard() {
   const [aiReply, setAiReply] = useState(null);
@@ -23,6 +24,8 @@ function Dashboard() {
   const [expandedProfile, setExpandedProfile] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamComplete, setStreamComplete] = useState(false);
+  const [isParsing, setIsParsing] = useState(false);
+  const [parsingComplete, setParsingComplete] = useState(false);
   const expandedProfileRef = useRef(false);
   const [projects, setProjects] = useState([]);
   const [isRestoring, setIsRestoring] = useState(true);
@@ -135,6 +138,8 @@ function Dashboard() {
     setIsEditing(false);
     setIsStreaming(true);
     setStreamComplete(false);
+    setIsParsing(true);
+    setParsingComplete(false);
     
     // Explicitly preserve expandedProfile state when a message is selected
     // Use a longer timeout to ensure this happens after ALL state updates
@@ -361,11 +366,36 @@ function Dashboard() {
                           </>
                         )}
                       </div>
-                      <div className="bg-bg-card rounded-md p-3 border border-border-light shadow-sm">
-                        <span className={`text-xs font-medium px-2.5 py-1 rounded-sm mr-2 inline-block ${getMessageTypeColor(currentMessage.messageType)}`}>
-                          {currentMessage.messageType}
-                        </span>
-                        <p className="text-sm text-text-primary leading-relaxed mt-2">{currentMessage.messageText}</p>
+                      <div className="bg-gradient-to-br from-bg-card to-bg-card/50 rounded-md p-4 border border-border-light shadow-sm">
+                        <div className="flex items-center gap-2 mb-3">
+                          <span className={`text-xs font-medium px-2.5 py-1 rounded-sm ${getMessageTypeColor(currentMessage.messageType)}`}>
+                            {currentMessage.messageType}
+                          </span>
+                          {isParsing && !parsingComplete && (
+                            <div className="flex items-center gap-1.5">
+                              <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
+                              <span className="text-xs text-text-tertiary italic">Parsing original message...</span>
+                            </div>
+                          )}
+                          {parsingComplete && (
+                            <div className="flex items-center gap-1.5">
+                              <div className="w-1.5 h-1.5 bg-success rounded-full" />
+                              <span className="text-xs text-success">Parsed</span>
+                            </div>
+                          )}
+                        </div>
+                        {isParsing && !parsingComplete ? (
+                          <ParsingMessage
+                            text={currentMessage.messageText}
+                            onComplete={() => {
+                              setParsingComplete(true);
+                              setIsParsing(false);
+                            }}
+                            className="mt-2"
+                          />
+                        ) : (
+                          <p className="text-sm text-text-primary leading-relaxed whitespace-pre-wrap">{currentMessage.messageText}</p>
+                        )}
                       </div>
                     </div>
                   </div>
