@@ -170,6 +170,21 @@ body {
   animation: slideInFromBottom 0.4s ease-out;
 }
 
+.slide-in-from-bottom-4 {
+  animation: slideInFromBottom4 0.5s ease-out;
+}
+
+@keyframes slideInFromBottom4 {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .scale-in {
   animation: scaleIn 0.3s ease-out;
 }

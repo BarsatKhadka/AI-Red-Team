@@ -1,4 +1,12 @@
 # Mock data structure: Projects -> Teams -> Team Members -> Messages
+from datetime import datetime, timedelta
+
+# Calculate dates for messages (today, yesterday, 2 days ago, 3 days ago)
+today = datetime.now().date()
+yesterday = today - timedelta(days=1)
+two_days_ago = today - timedelta(days=2)
+three_days_ago = today - timedelta(days=3)
+
 PROJECTS = [
     {
         "id": 1,
@@ -13,7 +21,9 @@ PROJECTS = [
                         "id": 1,
                         "name": "Alice",
                         "messages": [
+                            # Today's message
                             {
+                                "date": today.isoformat(),
                                 "originalMessages": [
                                     {
                                         "text": "I need clarification on the API integration task. The documentation mentions Section 3.2 of the Technical Design Document, but I'm not sure about the authentication flow. Should I use JWT tokens or OAuth2? Task 18 is 70% complete. I've finished the database schema design and started implementing the API endpoints.",
@@ -40,6 +50,87 @@ PROJECTS = [
                                         "type": "@progress_update",
                                         "text": "Task 18 is 70% complete. I've finished the database schema design and started implementing the API endpoints. The authentication module is still pending.",
                                         "source": "outlook"
+                                    }
+                                ]
+                            },
+                            # Yesterday's message
+                            {
+                                "date": yesterday.isoformat(),
+                                "originalMessages": [
+                                    {
+                                        "text": "The database migration is complete. All tests are passing. I've also updated the API documentation to reflect the new schema changes.",
+                                        "source": "outlook"
+                                    },
+                                    {
+                                        "text": "I can help with code review for the authentication module. Available for the next 2 hours.",
+                                        "source": "slack"
+                                    }
+                                ],
+                                "source": "outlook",
+                                "categorizedVersions": [
+                                    {
+                                        "type": "@progress_update",
+                                        "text": "The database migration is complete. All tests are passing. I've also updated the API documentation to reflect the new schema changes.",
+                                        "source": "outlook"
+                                    },
+                                    {
+                                        "type": "@availability",
+                                        "text": "I can help with code review for the authentication module. Available for the next 2 hours.",
+                                        "source": "slack"
+                                    }
+                                ]
+                            },
+                            # 2 days ago message
+                            {
+                                "date": two_days_ago.isoformat(),
+                                "originalMessages": [
+                                    {
+                                        "text": "Found an issue with the rate limiting middleware. It's blocking legitimate requests. Need to adjust the threshold values.",
+                                        "source": "outlook"
+                                    },
+                                    {
+                                        "text": "Can someone clarify the expected response format for the user profile endpoint? Should it include nested objects?",
+                                        "source": "slack"
+                                    }
+                                ],
+                                "source": "outlook",
+                                "categorizedVersions": [
+                                    {
+                                        "type": "@progress_update",
+                                        "text": "Found an issue with the rate limiting middleware. It's blocking legitimate requests. Need to adjust the threshold values.",
+                                        "source": "outlook"
+                                    },
+                                    {
+                                        "type": "@clarify",
+                                        "text": "Can someone clarify the expected response format for the user profile endpoint? Should it include nested objects?",
+                                        "source": "slack"
+                                    }
+                                ]
+                            },
+                            # 3 days ago message
+                            {
+                                "date": three_days_ago.isoformat(),
+                                "originalMessages": [
+                                    {
+                                        "text": "Started working on the user authentication service. The JWT token generation is working, but I need to implement refresh token logic.",
+                                        "source": "outlook"
+                                    },
+                                    {
+                                        "text": "Available 8 hours this week. Can focus on backend tasks if needed.",
+                                        "source": "slack"
+                                    }
+                                ],
+                                "source": "outlook",
+                                "categorizedVersions": [
+                                    {
+                                        "type": "@progress_update",
+                                        "text": "Started working on the user authentication service. The JWT token generation is working, but I need to implement refresh token logic.",
+                                        "source": "outlook"
+                                    },
+                                    {
+                                        "type": "@availability",
+                                        "text": "Available 8 hours this week. Can focus on backend tasks if needed.",
+                                        "source": "slack"
                                     }
                                 ]
                             }

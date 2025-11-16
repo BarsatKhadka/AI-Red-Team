@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import ParsingMessage from './ParsingMessage';
 import CategorizingMessage from './CategorizingMessage';
 import AnimatedTag from './AnimatedTag';
+import DatePicker from './DatePicker';
 
 function TeamMembersPanel({ project, team, selectedMemberId, onMemberSelect, onMessageClick, documents }) {
   const [selectedMember, setSelectedMember] = useState(null);
@@ -11,6 +12,10 @@ function TeamMembersPanel({ project, team, selectedMemberId, onMemberSelect, onM
   const [parsedMessages, setParsedMessages] = useState(new Set());
   const [categorizingMessages, setCategorizingMessages] = useState(new Set());
   const [categorizedMessages, setCategorizedMessages] = useState(new Set());
+  const [selectedDate, setSelectedDate] = useState(() => {
+    // Default to today's date
+    return new Date().toISOString().split('T')[0];
+  });
 
   // Automatically expand member when selected from sidebar
   useEffect(() => {
@@ -157,10 +162,22 @@ function TeamMembersPanel({ project, team, selectedMemberId, onMemberSelect, onM
   return (
     <div className="h-full flex flex-col bg-bg border-r border-border-light">
       <div className="h-16 flex items-center justify-between px-4 border-b border-border-light">
-        <div>
+        <div className="flex-1">
           <h3 className="text-base font-semibold text-text-primary">{team.name}</h3>
           <p className="text-sm text-text-secondary mt-0.5">{team.members?.length || 0} member{(team.members?.length || 0) !== 1 ? 's' : ''}</p>
         </div>
+        {team.name === 'Backend Team' && (
+          <DatePicker
+            selectedDate={selectedDate}
+            onDateChange={setSelectedDate}
+            minDate={(() => {
+              const threeDaysAgo = new Date();
+              threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+              return threeDaysAgo.toISOString().split('T')[0];
+            })()}
+            maxDate={new Date().toISOString().split('T')[0]}
+          />
+        )}
       </div>
       
       <div className="flex-1 overflow-y-auto p-3">
@@ -214,12 +231,29 @@ function TeamMembersPanel({ project, team, selectedMemberId, onMemberSelect, onM
                   {/* Messages - Only show when expanded */}
                   {isExpanded && member.messages && member.messages.length > 0 && (
                     <div className="space-y-3 mt-2 border-t border-border-light pt-2">
-                      {member.messages.map((message, msgIndex) => {
-                        const messageKey = `${member.id}-${msgIndex}`;
-                        const isOriginalExpanded = expandedOriginalMessages.has(messageKey);
+                      {(() => {
+                        // Filter messages by date for Alice in Backend Team
+                        let messagesToShow = member.messages;
+                        if (member.name === 'Alice' && team.name === 'Backend Team') {
+                          messagesToShow = member.messages.filter(msg => {
+                            // If message has a date field, filter by it
+                            if (msg.date) {
+                              return msg.date === selectedDate;
+                            }
+                            // If no date field, only show on today's date
+                            return selectedDate === new Date().toISOString().split('T')[0];
+                          });
+                        }
                         
-                        return (
-                          <div key={msgIndex} className="space-y-2">
+                        return messagesToShow.length > 0 ? (
+                          messagesToShow.map((message, msgIndex) => {
+                            // Find original index in full messages array for proper key
+                            const originalIndex = member.messages.findIndex(m => m === message);
+                            const messageKey = `${member.id}-${originalIndex >= 0 ? originalIndex : msgIndex}`;
+                            const isOriginalExpanded = expandedOriginalMessages.has(messageKey);
+                            
+                            return (
+                              <div key={messageKey} className="space-y-2">
                             {/* Original Messages - Collapsible */}
                             {message.originalMessages && message.originalMessages.length > 0 && (
                               <div className="space-y-2">
@@ -273,12 +307,6 @@ function TeamMembersPanel({ project, team, selectedMemberId, onMemberSelect, onM
                                               <div className="flex items-center gap-1.5">
                                                 <div className="w-1 h-1 bg-primary rounded-full animate-pulse" />
                                                 <span className="text-[10px] text-text-tertiary italic">Parsing...</span>
-                                              </div>
-                                            )}
-                                            {isParsed && (
-                                              <div className="flex items-center gap-1.5">
-                                                <div className="w-1 h-1 bg-success rounded-full" />
-                                                <span className="text-[10px] text-success">AI Analyzed</span>
                                               </div>
                                             )}
                                           </div>
@@ -356,12 +384,6 @@ function TeamMembersPanel({ project, team, selectedMemberId, onMemberSelect, onM
                                           <div className="flex items-center gap-1.5 ml-auto">
                                             <div className="w-1 h-1 bg-primary rounded-full animate-pulse" />
                                             <span className="text-[10px] text-text-tertiary italic">Parsing...</span>
-                                          </div>
-                                        )}
-                                        {isParsed && (
-                                          <div className="flex items-center gap-1.5 ml-auto">
-                                            <div className="w-1 h-1 bg-success rounded-full" />
-                                            <span className="text-[10px] text-success">AI Analyzed</span>
                                           </div>
                                         )}
                                       </div>
@@ -459,9 +481,15 @@ function TeamMembersPanel({ project, team, selectedMemberId, onMemberSelect, onM
                                 )}
                               </div>
                             )}
+                            </div>
+                          );
+                        })
+                        ) : (
+                          <div className="text-center py-4 text-sm text-text-secondary">
+                            No messages for this date
                           </div>
                         );
-                      })}
+                      })()}
                     </div>
                   )}
                 </div>

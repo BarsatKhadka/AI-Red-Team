@@ -1,9 +1,49 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { staticProjectFiles } from '../mockData/staticProjectFiles';
 
 function ProjectFiles() {
   const [isOpen, setIsOpen] = useState(false);
+  const [visibleFiles, setVisibleFiles] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [hasReferencedAll, setHasReferencedAll] = useState(false);
   const fileCount = staticProjectFiles.length;
+  
+  // Cycle through files to show AI referencing them
+  useEffect(() => {
+    if (staticProjectFiles.length === 0) return;
+    
+    let cycleCount = 0;
+    const maxCycles = staticProjectFiles.length; // Cycle through all files once
+    
+    // Show 1 file at a time, cycling through
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => {
+        const nextIndex = (prev + 1) % staticProjectFiles.length;
+        const newVisible = [{
+          ...staticProjectFiles[nextIndex],
+          id: `${staticProjectFiles[nextIndex].id}-${Date.now()}`
+        }];
+        setVisibleFiles(newVisible);
+        
+        cycleCount++;
+        if (cycleCount >= maxCycles) {
+          setHasReferencedAll(true);
+          clearInterval(interval);
+        }
+        
+        return nextIndex;
+      });
+    }, 2000);
+    
+    // Initial set
+    const initialVisible = [{
+      ...staticProjectFiles[0],
+      id: `${staticProjectFiles[0].id}-initial`
+    }];
+    setVisibleFiles(initialVisible);
+    
+    return () => clearInterval(interval);
+  }, []);
 
   const getFileIcon = (fileType) => {
     switch (fileType) {
@@ -21,17 +61,50 @@ function ProjectFiles() {
   return (
     <div className="relative bg-bg-card">
       <div className="h-16 flex items-center justify-between px-4 border-b border-border-light">
-        <div className="flex flex-col">
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold text-text-primary">Project Files</span>
-            <div className="flex gap-1">
-              <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
-              <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" style={{ animationDelay: '150ms' }} />
+        <div className="flex items-center gap-4 flex-1">
+          <div className="flex flex-col">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-semibold text-text-primary">Project Files</span>
             </div>
+            <span className="text-xs text-text-secondary mt-0.5">
+              {fileCount} files
+            </span>
           </div>
-          <span className="text-xs text-text-secondary mt-0.5">
-            {fileCount} files • AI actively referencing
-          </span>
+          
+          {/* Animated File References - In the middle */}
+          <div className="flex items-center justify-center gap-4 flex-1">
+            <span className="text-xs text-text-tertiary">•</span>
+            <div className="relative h-5 overflow-hidden" style={{ minWidth: '200px' }}>
+              <div className="absolute inset-0 flex items-center justify-center">
+                {hasReferencedAll ? (
+                  <div
+                    className="flex items-center gap-1.5 text-[10px] text-primary slide-in-from-bottom-4"
+                    style={{ 
+                      animationDuration: '500ms',
+                      animationFillMode: 'both'
+                    }}
+                  >
+                    <span className="font-medium">referenced all files</span>
+                  </div>
+                ) : (
+                  visibleFiles.slice(0, 1).map((file, idx) => (
+                    <div
+                      key={file.id}
+                      className="flex items-center gap-1.5 text-[10px] text-primary slide-in-from-bottom-4"
+                      style={{ 
+                        animationDuration: '500ms',
+                        animationFillMode: 'both'
+                      }}
+                    >
+                      <span className="text-[10px]">{getFileIcon(file.fileType)}</span>
+                      <span className="font-medium truncate">ref {file.fileName}</span>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+            <span className="text-xs text-text-tertiary">•</span>
+          </div>
         </div>
         
         <div className="flex items-center gap-2">
