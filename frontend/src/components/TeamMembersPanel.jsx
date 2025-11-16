@@ -1,9 +1,13 @@
 import { useState, useEffect } from 'react';
+import CategorizingMessage from './CategorizingMessage';
+import AnimatedTag from './AnimatedTag';
 
 function TeamMembersPanel({ project, team, selectedMemberId, onMemberSelect, onMessageClick, documents }) {
   const [selectedMember, setSelectedMember] = useState(null);
   const [expandedMember, setExpandedMember] = useState(null);
   const [expandedOriginalMessages, setExpandedOriginalMessages] = useState(new Set());
+  const [categorizingMessages, setCategorizingMessages] = useState(new Set());
+  const [categorizedMessages, setCategorizedMessages] = useState(new Set());
 
   // Automatically expand member when selected from sidebar
   useEffect(() => {
@@ -230,46 +234,76 @@ function TeamMembersPanel({ project, team, selectedMemberId, onMemberSelect, onM
                               </div>
                             )}
                             
-                            {/* Categorized Versions */}
+                            {/* Categorized Versions with AI Animation */}
                             {message.categorizedVersions && message.categorizedVersions.length > 0 && (
-                              <div className="space-y-1.5">
-                                <div className="text-xs font-medium text-text-primary mb-1">Categorized Versions:</div>
-                                    {message.categorizedVersions.map((version, versionIndex) => (
-                                  <div
-                                    key={versionIndex}
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setSelectedMember(member.id);
-                                      if (onMemberSelect) {
-                                        onMemberSelect(member);
-                                      }
-                                      onMessageClick(member.name, version.type, version.text, project.name, team.name, version.source || 'outlook', documents);
+                              <div className="space-y-2">
+                                {!categorizedMessages.has(messageKey) ? (
+                                  <CategorizingMessage
+                                    originalText={message.original || message.text}
+                                    categorizedVersions={message.categorizedVersions}
+                                    onCategorizationComplete={() => {
+                                      setCategorizedMessages(prev => new Set([...prev, messageKey]));
+                                      setCategorizingMessages(prev => {
+                                        const newSet = new Set(prev);
+                                        newSet.delete(messageKey);
+                                        return newSet;
+                                      });
                                     }}
-                                    className="p-4 bg-bg-card rounded-md border border-border-light hover:border-primary hover:shadow-sm cursor-pointer transition-all"
-                                  >
-                                    <div className="flex items-center justify-between mb-2">
-                                      <div className="flex items-center gap-2 flex-wrap">
-                                        <span className={`text-xs font-medium px-2.5 py-1 rounded-sm ${getMessageTypeColor(version.type)}`}>
-                                          {version.type}
-                                        </span>
-                                        <span className="text-xs text-text-tertiary">
-                                          {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                                        </span>
+                                  />
+                                ) : (
+                                  <>
+                                    <div className="flex items-center gap-2 mb-2">
+                                      <span className="text-xs font-semibold text-text-primary">AI Categorized Versions:</span>
+                                      <div className="flex flex-wrap gap-1.5">
+                                        {message.categorizedVersions.map((version, versionIndex) => (
+                                          <AnimatedTag
+                                            key={versionIndex}
+                                            label={version.type}
+                                            colorClass={getMessageTypeColor(version.type)}
+                                            delay={versionIndex * 50}
+                                          />
+                                        ))}
                                       </div>
                                     </div>
-                                    {version.source && (
-                                      <div className="mb-2 flex items-center gap-1.5 flex-wrap">
-                                        <span className="text-xs text-text-tertiary">Sent from</span>
-                                        <span className="text-xs font-medium text-text-secondary capitalize">{version.source}</span>
-                                        <span className="text-xs text-text-tertiary">•</span>
-                                        <span className="text-xs text-primary font-normal">
-                                          {member.name.toLowerCase()}@{version.source === 'outlook' ? 'outlook.com' : version.source === 'slack' ? 'slack.com' : 'teams.microsoft.com'}
-                                        </span>
+                                    {message.categorizedVersions.map((version, versionIndex) => (
+                                      <div
+                                        key={versionIndex}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setSelectedMember(member.id);
+                                          if (onMemberSelect) {
+                                            onMemberSelect(member);
+                                          }
+                                          onMessageClick(member.name, version.type, version.text, project.name, team.name, version.source || 'outlook', documents);
+                                        }}
+                                        className="p-4 bg-bg-card rounded-md border border-border-light hover:border-primary hover:shadow-md cursor-pointer transition-all animate-in fade-in slide-in-from-bottom-2"
+                                        style={{ animationDelay: `${versionIndex * 100}ms` }}
+                                      >
+                                        <div className="flex items-center justify-between mb-2">
+                                          <div className="flex items-center gap-2 flex-wrap">
+                                            <span className={`text-xs font-medium px-2.5 py-1 rounded-sm ${getMessageTypeColor(version.type)}`}>
+                                              {version.type}
+                                            </span>
+                                            <span className="text-xs text-text-tertiary">
+                                              {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                                            </span>
+                                          </div>
+                                        </div>
+                                        {version.source && (
+                                          <div className="mb-2 flex items-center gap-1.5 flex-wrap">
+                                            <span className="text-xs text-text-tertiary">Sent from</span>
+                                            <span className="text-xs font-medium text-text-secondary capitalize">{version.source}</span>
+                                            <span className="text-xs text-text-tertiary">•</span>
+                                            <span className="text-xs text-primary font-normal">
+                                              {member.name.toLowerCase()}@{version.source === 'outlook' ? 'outlook.com' : version.source === 'slack' ? 'slack.com' : 'teams.microsoft.com'}
+                                            </span>
+                                          </div>
+                                        )}
+                                        <p className="text-sm text-text-primary leading-relaxed">{version.text}</p>
                                       </div>
-                                    )}
-                                    <p className="text-sm text-text-primary leading-relaxed">{version.text}</p>
-                                  </div>
-                                ))}
+                                    ))}
+                                  </>
+                                )}
                               </div>
                             )}
                           </div>

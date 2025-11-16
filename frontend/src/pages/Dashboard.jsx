@@ -5,6 +5,8 @@ import ProjectFiles from '../components/ProjectFiles';
 import MemberBioSummary from '../components/MemberBioSummary';
 import SuggestionBox from '../components/SuggestionBox';
 import NewProjectModal from '../components/NewProjectModal';
+import StreamingText from '../components/StreamingText';
+import AILoadingIndicator from '../components/AILoadingIndicator';
 
 function Dashboard() {
   const [aiReply, setAiReply] = useState(null);
@@ -19,6 +21,8 @@ function Dashboard() {
   const [editedReply, setEditedReply] = useState('');
   const [showSendOptions, setShowSendOptions] = useState(false);
   const [expandedProfile, setExpandedProfile] = useState(false);
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [streamComplete, setStreamComplete] = useState(false);
   const expandedProfileRef = useRef(false);
 
   // Sync ref with state (backup sync, but we update ref directly in handlers)
@@ -50,6 +54,8 @@ function Dashboard() {
     setCurrentMessage(messageData);
     setEditedReply(replyData?.reply || '');
     setIsEditing(false);
+    setIsStreaming(true);
+    setStreamComplete(false);
     
     // Explicitly preserve expandedProfile state when a message is selected
     // Use a longer timeout to ensure this happens after ALL state updates
@@ -288,16 +294,21 @@ function Dashboard() {
                   {/* AI Reply */}
                   {loading && (
                     <div className="flex items-start gap-3">
-                      <img 
-                        src="https://api.dicebear.com/7.x/bottts/svg?seed=AI-Assistant&backgroundColor=4f46e5"
-                        alt="AI Assistant"
-                        className="w-8 h-8 rounded-full object-cover flex-shrink-0"
-                      />
+                      <div className="relative flex-shrink-0">
+                        <img 
+                          src="https://api.dicebear.com/7.x/bottts/svg?seed=AI-Assistant&backgroundColor=4f46e5"
+                          alt="AI Assistant"
+                          className="w-8 h-8 rounded-full object-cover"
+                        />
+                        <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-success rounded-full border-2 border-bg-card animate-pulse" />
+                      </div>
                       <div className="flex-1">
-                        <div className="bg-bg-card rounded-md p-3 border border-border-light shadow-sm">
-                          <div className="flex items-center gap-2">
-                            <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-                            <span className="text-xs text-primary">Generating reply...</span>
+                        <div className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-md p-4 border border-primary/20 shadow-sm">
+                          <AILoadingIndicator message="AI is generating reply..." size="sm" />
+                          <div className="mt-3 space-y-2">
+                            <div className="h-2 bg-primary/20 rounded-full animate-pulse" style={{ width: '60%' }} />
+                            <div className="h-2 bg-primary/20 rounded-full animate-pulse" style={{ width: '80%' }} />
+                            <div className="h-2 bg-primary/20 rounded-full animate-pulse" style={{ width: '40%' }} />
                           </div>
                         </div>
                       </div>
@@ -430,8 +441,47 @@ function Dashboard() {
                             </div>
                           </div>
                         ) : (
-                          <div className="bg-primary-light rounded-md p-3 border border-primary/20">
-                            <p className="text-sm text-text-primary leading-relaxed whitespace-pre-wrap">{aiReply.reply || ''}</p>
+                          <div className="bg-gradient-to-br from-primary-light to-primary/5 rounded-md p-4 border border-primary/20 shadow-sm">
+                            {isStreaming && !streamComplete ? (
+                              <div className="space-y-2">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+                                  <span className="text-xs font-medium text-primary">AI is writing...</span>
+                                </div>
+                                <StreamingText
+                                  text={aiReply.reply || ''}
+                                  speed={15}
+                                  onComplete={() => {
+                                    setIsStreaming(false);
+                                    setStreamComplete(true);
+                                  }}
+                                  className="text-sm text-text-primary leading-relaxed"
+                                />
+                              </div>
+                            ) : (
+                              <div className="space-y-2">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <div className="w-2 h-2 bg-success rounded-full" />
+                                  <span className="text-xs font-medium text-success">AI reply complete</span>
+                                </div>
+                                <p className="text-sm text-text-primary leading-relaxed whitespace-pre-wrap">{aiReply.reply || ''}</p>
+                                {aiReply.sourceDocuments && aiReply.sourceDocuments.length > 0 && (
+                                  <div className="mt-3 pt-3 border-t border-primary/20">
+                                    <p className="text-xs font-medium text-text-secondary mb-2">Sources used:</p>
+                                    <div className="flex flex-wrap gap-1.5">
+                                      {aiReply.sourceDocuments.map((doc, idx) => (
+                                        <span
+                                          key={idx}
+                                          className="text-xs px-2 py-1 bg-primary/10 text-primary rounded border border-primary/20"
+                                        >
+                                          {doc}
+                                        </span>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>
