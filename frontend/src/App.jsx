@@ -80,7 +80,7 @@ function App() {
               onClick={() => handleNavigation('memory')}
               className={`nav-link ${currentPage === 'memory' ? 'active' : ''}`}
             >
-              🧠 AI Memory
+              AI Memory
             </button>
           </div>
         </div>

@@ -14,7 +14,16 @@ PROJECTS = [
                         "name": "Alice",
                         "messages": [
                             {
-                                "original": "I need clarification on the API integration task. The documentation mentions Section 3.2 of the Technical Design Document, but I'm not sure about the authentication flow. Should I use JWT tokens or OAuth2? I am available 10 hours this week. I can work on Monday, Wednesday, and Friday afternoons. Task 18 is 70% complete. I've finished the database schema design and started implementing the API endpoints.",
+                                "originalMessages": [
+                                    {
+                                        "text": "I need clarification on the API integration task. The documentation mentions Section 3.2 of the Technical Design Document, but I'm not sure about the authentication flow. Should I use JWT tokens or OAuth2? Task 18 is 70% complete. I've finished the database schema design and started implementing the API endpoints.",
+                                        "source": "outlook"
+                                    },
+                                    {
+                                        "text": "I am available 10 hours this week. I can work on Monday, Wednesday, and Friday afternoons. Let me know if you need me for any urgent tasks.",
+                                        "source": "slack"
+                                    }
+                                ],
                                 "source": "outlook",
                                 "categorizedVersions": [
                                     {
@@ -41,7 +50,16 @@ PROJECTS = [
                         "name": "Bob",
                         "messages": [
                             {
-                                "original": "This week I can do 15 hours. I'm free most mornings and can also work late evenings if needed. Do we use FastAPI or Flask for the backend? I see references to both in the codebase. Completed the user authentication service. All tests are passing.",
+                                "originalMessages": [
+                                    {
+                                        "text": "This week I can do 15 hours. I'm free most mornings and can also work late evenings if needed. Happy to help with any backend tasks.",
+                                        "source": "slack"
+                                    },
+                                    {
+                                        "text": "Do we use FastAPI or Flask for the backend? I see references to both in the codebase. Completed the user authentication service. All tests are passing.",
+                                        "source": "outlook"
+                                    }
+                                ],
                                 "source": "slack",
                                 "categorizedVersions": [
                                     {
@@ -74,7 +92,16 @@ PROJECTS = [
                         "name": "Charlie",
                         "messages": [
                             {
-                                "original": "Task 10 is blocked due to missing API keys. I've set up the UI components but can't test the integration. What's the expected behavior for the error handling in the login form?",
+                                "originalMessages": [
+                                    {
+                                        "text": "Task 10 is blocked due to missing API keys. I've set up the UI components but can't test the integration without the backend credentials.",
+                                        "source": "slack"
+                                    },
+                                    {
+                                        "text": "What's the expected behavior for the error handling in the login form? Should we show inline errors or use toast notifications?",
+                                        "source": "outlook"
+                                    }
+                                ],
                                 "source": "slack",
                                 "categorizedVersions": [
                                     {
@@ -96,7 +123,16 @@ PROJECTS = [
                         "name": "Dana",
                         "messages": [
                             {
-                                "original": "Can I shift Task 5 deadline by 1 day? I need more time to implement the responsive design. Available 12 hours this week for the dashboard redesign.",
+                                "originalMessages": [
+                                    {
+                                        "text": "Can I shift Task 5 deadline by 1 day? I need more time to implement the responsive design properly across all breakpoints.",
+                                        "source": "outlook"
+                                    },
+                                    {
+                                        "text": "Available 12 hours this week for the dashboard redesign. Can focus on that if needed.",
+                                        "source": "slack"
+                                    }
+                                ],
                                 "source": "outlook",
                                 "categorizedVersions": [
                                     {

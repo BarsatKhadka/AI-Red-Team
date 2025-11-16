@@ -418,6 +418,40 @@ function MemberBioSummary({ member, project, team, compact = false, onExpand, on
           )}
         </div>
       )}
+      
+      {/* AI Ask Input at Bottom */}
+      {member && (
+        <div className="mt-4 pt-4 border-t border-border-light">
+          <div className="flex items-start gap-3">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center flex-shrink-0 shadow-sm">
+              <span className="text-white text-xs font-bold">AI</span>
+            </div>
+            <div className="flex-1">
+              <label className="text-xs font-medium text-text-secondary mb-1 block">
+                Ask about {member.name}
+              </label>
+              <p className="text-xs text-text-tertiary mb-2">
+                Get AI insights about this team member
+              </p>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder={`e.g., What is ${member.name}'s availability?`}
+                  className="flex-1 px-3 py-2 border border-border-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-xs bg-bg-card"
+                />
+                <button
+                  className="px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                  Ask
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

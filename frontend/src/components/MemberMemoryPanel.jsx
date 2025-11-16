@@ -102,7 +102,6 @@ function MemberMemoryPanel({ member, project, team }) {
     return (
       <div className="h-full flex items-center justify-center bg-bg p-8">
         <div className="text-center space-y-3 max-w-md">
-          <div className="text-6xl mb-4">🧠</div>
           <h2 className="text-xl font-bold text-text-primary">AI Memory & Context</h2>
           <p className="text-sm text-text-secondary">
             Select a team member from the sidebar to view their AI memory, context references, and interaction patterns.
@@ -126,7 +125,7 @@ function MemberMemoryPanel({ member, project, team }) {
       {/* Header */}
       <div className="h-16 flex items-center justify-between px-4 border-b border-border-light bg-bg">
         <div>
-          <h3 className="text-sm font-bold text-text-primary">🧠 AI Memory</h3>
+          <h3 className="text-sm font-bold text-text-primary">AI Memory</h3>
           <p className="text-xs text-text-tertiary mt-0.5">{member.name}</p>
         </div>
         {isAnalyzing && (
