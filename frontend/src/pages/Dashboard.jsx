@@ -24,6 +24,7 @@ function Dashboard() {
   const [isEditing, setIsEditing] = useState(false);
   const [editedReply, setEditedReply] = useState('');
   const [showSendOptions, setShowSendOptions] = useState(false);
+  const [showTeamRouting, setShowTeamRouting] = useState(false);
   const [expandedProfile, setExpandedProfile] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamComplete, setStreamComplete] = useState(false);
@@ -442,6 +443,54 @@ function Dashboard() {
                           {/* Action Buttons - Always visible when not editing */}
                           {!isEditing && (
                             <div className="flex items-center gap-2 flex-shrink-0">
+                              {/* Route to Team Dropdown */}
+                              <div className="relative">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setShowTeamRouting(!showTeamRouting);
+                                  }}
+                                  className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded font-medium text-xs flex items-center gap-1.5 transition-colors whitespace-nowrap"
+                                >
+                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                                  </svg>
+                                  <span>Route to Team</span>
+                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                  </svg>
+                                </button>
+                                
+                                {showTeamRouting && selectedProject && selectedProject.teams && (
+                                  <div className="absolute right-0 top-full mt-2 bg-white border border-border-light rounded-lg shadow-xl min-w-[200px] z-50 overflow-hidden">
+                                    <div className="py-1.5">
+                                      {selectedProject.teams.map((team) => (
+                                        <button
+                                          key={team.id}
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            const teamName = team.name.toLowerCase().replace(/\s+/g, '-');
+                                            alert(`Issue routed to @${teamName} team channel`);
+                                            setShowTeamRouting(false);
+                                          }}
+                                          className="w-full text-left px-4 py-2.5 hover:bg-primary-light flex items-center gap-3 text-xs transition-colors group"
+                                        >
+                                          <div className="w-7 h-7 rounded bg-primary-light flex items-center justify-center group-hover:bg-primary transition-colors">
+                                            <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                            </svg>
+                                          </div>
+                                          <div className="flex-1">
+                                            <div className="font-semibold text-text-primary text-xs">@{team.name}</div>
+                                            <div className="text-xs text-text-secondary mt-0.5">Team channel</div>
+                                          </div>
+                                        </button>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                              
                               {/* Send Options Dropdown */}
                               <div className="relative">
                                 <button
