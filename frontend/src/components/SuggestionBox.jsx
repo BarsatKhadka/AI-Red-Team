@@ -206,7 +206,7 @@ function SuggestionBox() {
         )}
 
         {result && (
-          <div className="mt-4 p-4 bg-gradient-to-br from-primary-light to-primary/5 border border-primary/20 rounded-lg shadow-sm animate-in">
+          <div className="mt-4 p-4 bg-white border border-primary/30 rounded-lg shadow-sm animate-in">
             {result.type === 'pdf' ? (
               <div>
                 <div className="flex items-center gap-2 mb-2">
@@ -253,10 +253,10 @@ function SuggestionBox() {
                       setIsStreaming(false);
                       setStreamComplete(true);
                     }}
-                    className="text-xs text-text-secondary whitespace-pre-wrap leading-relaxed"
+                    className="text-sm text-text-primary whitespace-pre-wrap leading-relaxed"
                   />
                 ) : (
-                  <p className="text-xs text-text-secondary whitespace-pre-wrap leading-relaxed">{result.text}</p>
+                  <p className="text-sm text-text-primary whitespace-pre-wrap leading-relaxed">{result.text}</p>
                 )}
                 {/* Context References */}
                 <div className="mt-3 pt-3 border-t border-primary/10">

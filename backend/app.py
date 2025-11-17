@@ -238,7 +238,7 @@ Provide the improved, modified reply:"""
     else:
         user_prompt = f"Team member {request.member_name} asks: \"{message}\"\n\nRespond as project assistant. Reference {referenced_doc['doc']} Section {referenced_doc['section']} (page {referenced_doc['page']}). Be concise (2-3 sentences)."
     
-    system_prompt = "You are a project assistant. Give helpful, concise answers. Reference documentation with section/page numbers when relevant."
+    system_prompt = "You are a project assistant analyzer. Give helpful, concise answers. Reference documentation with section/page numbers when relevant."
     
     # Always use OpenAI - no fallback
     try:
@@ -440,7 +440,11 @@ async def generate_weekly_schedule():
 {chr(10).join(availability_list[:3]) if availability_list else 'All team members available'}
 """
     
-    return {"weekly_schedule": schedule}
+    return {
+        "type": "text",
+        "text": schedule,
+        "weekly_schedule": schedule
+    }
 
 
 @app.post("/agent/suggestions/progress-summary")
@@ -480,9 +484,14 @@ def summarize_progress():
                 {"role": "system", "content": "You are a helpful assistant that summarizes project progress with a focus on achievements, current status, blockers, and next steps."},
                 {"role": "user", "content": context}
             ],
-            max_tokens=350
+            max_tokens=500
         )
-        return {"progress_summary": response.choices[0].message.content.strip()}
+        print(f"\n=== OPENAI RESPONSE (/agent/suggestions/progress-summary) === {response.choices[0].message.content.strip()}")
+        return {
+            "type": "text",
+            "text": response.choices[0].message.content.strip(),
+            "progress_summary": response.choices[0].message.content.strip()
+        }
     except Exception as e:
         logging.error(f"OpenAI API error in /agent/suggestions/progress-summary: {str(e)}")
         raise HTTPException(status_code=500, detail=f"OpenAI API error: {str(e)}")
@@ -645,7 +654,11 @@ def agent_action(request: AgentActionRequest):
             ],
             max_tokens=300
         )
-        return {"action_response": response.choices[0].message.content.strip()}
+        return {
+            "type": "text",
+            "text": response.choices[0].message.content.strip(),
+            "action_response": response.choices[0].message.content.strip()
+        }
     except Exception as e:
         logging.error(f"OpenAI API error in /agent/action: {str(e)}")
         raise HTTPException(status_code=500, detail=f"OpenAI API error: {str(e)}")
