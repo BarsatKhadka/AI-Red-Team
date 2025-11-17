@@ -63,7 +63,7 @@ function TeamMembersPanel({ project, team, selectedMemberId, onMemberSelect, onM
         
         // Find the member object and call onMemberSelect
         if (onMemberSelect) {
-          onMemberSelect(member);
+          onMemberSelect(member, team, project);
         }
       }
     } else if (!selectedMemberId) {
@@ -147,7 +147,7 @@ function TeamMembersPanel({ project, team, selectedMemberId, onMemberSelect, onM
       }
       
       if (onMemberSelect) {
-        onMemberSelect(member);
+        onMemberSelect(member, team, project);
       }
       // If member has messages, show the first categorized version
       if (member.messages && member.messages.length > 0) {
@@ -447,7 +447,7 @@ function TeamMembersPanel({ project, team, selectedMemberId, onMemberSelect, onM
                                           e.stopPropagation();
                                           setSelectedMember(member.id);
                                           if (onMemberSelect) {
-                                            onMemberSelect(member);
+                                            onMemberSelect(member, team, project);
                                           }
                                           onMessageClick(member.name, version.type, version.text, project.name, team.name, version.source || 'outlook', documents);
                                         }}

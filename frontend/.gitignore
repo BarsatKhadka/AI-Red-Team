@@ -1,5 +1,5 @@
 # Logs
-
+/env_2
 .env 
 logs
 *.log
@@ -15,6 +15,7 @@ dist-ssr
 *.local
 
 # Editor directories and files
+.env_2/
 .vscode/*
 !.vscode/extensions.json
 .idea

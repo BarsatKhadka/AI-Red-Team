@@ -41,7 +41,12 @@ function MemoryPage() {
 
   const handleProjectClick = (project) => {
     setSelectedProject(project);
-    setSelectedTeam(null);
+    // Automatically select the first team when a project is clicked
+    if (project && project.teams && project.teams.length > 0) {
+      setSelectedTeam(project.teams[0]);
+    } else {
+      setSelectedTeam(null);
+    }
     setSelectedMember(null);
   };
 

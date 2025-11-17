@@ -1,8 +1,8 @@
-("""Module entrypoint that exposes the FastAPI ``app`` instance for ASGI servers.
-, have the sam 
+"""Module entrypoint that exposes the FastAPI ``app`` instance for ASGI servers.
+
 Uvicorn can load the app with `uvicorn main:app` because this module imports
 the `app` instance defined in `app.py`.
-""")
+"""
 
 from app import app  # re-export the FastAPI instance defined in app.py
 
