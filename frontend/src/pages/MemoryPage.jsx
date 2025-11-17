@@ -4,6 +4,21 @@ import MemberMemoryPanel from '../components/MemberMemoryPanel';
 import ProjectsSidebar from '../components/ProjectsSidebar';
 import TeamMembersPanel from '../components/TeamMembersPanel';
 
+async function fetchProjectsFromMCP() {
+  try {
+    const response = await fetch('http://localhost:8000/projects');
+    if (response.ok) {
+      return await response.json();
+    } else {
+      console.error('Failed to fetch projects:', response.statusText);
+      return [];
+    }
+  } catch (error) {
+    console.error('Error fetching projects:', error);
+    return [];
+  }
+}
+
 /**
  * MemoryPage Component
  * Dedicated page for viewing AI memory and context for team members
@@ -13,55 +28,15 @@ function MemoryPage() {
   const [selectedProject, setSelectedProject] = useState(null);
   const [selectedTeam, setSelectedTeam] = useState(null);
   const [selectedMember, setSelectedMember] = useState(null);
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [projects, setProjects] = useState([]);
 
-  // Restore state from localStorage on mount
   useEffect(() => {
-    const fetchProjectsAndRestore = async () => {
-      try {
-        const response = await fetch('http://localhost:8000/projects');
-        if (response.ok) {
-          const projectsData = await response.json();
-          
-          // Restore saved state
-          const savedState = localStorage.getItem('dashboardState');
-          if (savedState) {
-            try {
-              const state = JSON.parse(savedState);
-              
-              if (state.projectId) {
-                const project = projectsData.find(p => p.id === state.projectId);
-                if (project) {
-                  setSelectedProject(project);
-                  
-                  if (state.teamId && project.teams) {
-                    const team = project.teams.find(t => t.id === state.teamId);
-                    if (team) {
-                      setSelectedTeam(team);
-                      
-                      if (state.memberId && team.members) {
-                        const member = team.members.find(m => m.id === state.memberId);
-                        if (member) {
-                          setTimeout(() => {
-                            setSelectedMember(member);
-                          }, 200);
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            } catch (e) {
-              console.warn('Failed to restore state:', e);
-            }
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching projects:', error);
-      }
+    const fetchAndSetProjects = async () => {
+      const projectsData = await fetchProjectsFromMCP();
+      setProjects(projectsData);
     };
 
-    fetchProjectsAndRestore();
+    fetchAndSetProjects();
   }, []);
 
   const handleProjectClick = (project) => {
@@ -92,14 +67,9 @@ function MemoryPage() {
         {/* Left Panel - Projects Sidebar */}
         <div className="w-56 border-r border-border-light bg-bg-card">
           <ProjectsSidebar 
-            onProjectSelect={() => {}}
-            refreshTrigger={refreshTrigger}
+            projects={projects}
             onProjectClick={handleProjectClick}
             selectedProjectId={selectedProject?.id}
-            selectedTeamId={selectedTeam?.id}
-            selectedMemberId={selectedMember?.id}
-            onTeamClick={handleTeamClick}
-            onMemberClick={handleMemberSelect}
           />
         </div>
         
@@ -110,8 +80,6 @@ function MemoryPage() {
             team={selectedTeam}
             selectedMemberId={selectedMember?.id}
             onMemberSelect={handleMemberSelect}
-            onMessageClick={() => {}}
-            documents={{}}
           />
         </div>
         

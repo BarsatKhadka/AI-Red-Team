@@ -2,7 +2,7 @@
  * AILoadingIndicator Component
  * Modern loading indicator for AI processing
  */
-function AILoadingIndicator({ message = 'AI is thinking...', size = 'md' }) {
+function AILoadingIndicator({ message = 'Agentic AI is processing...', size = 'md' }) {
   const sizeClasses = {
     sm: 'w-4 h-4',
     md: 'w-6 h-6',
