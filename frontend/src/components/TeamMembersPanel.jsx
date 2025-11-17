@@ -14,8 +14,8 @@ function TeamMembersPanel({ project, team, selectedMemberId, onMemberSelect, onM
   const [categorizingMessages, setCategorizingMessages] = useState(new Set());
   const [categorizedMessages, setCategorizedMessages] = useState(new Set());
   const [selectedDate, setSelectedDate] = useState(() => {
-    // Default to today's date
-    return new Date().toISOString().split('T')[0];
+    // Default to November 19, 2024 to match mock data
+    return '2024-11-19';
   });
 
   // Automatically expand member when selected from sidebar
@@ -171,12 +171,8 @@ function TeamMembersPanel({ project, team, selectedMemberId, onMemberSelect, onM
           <DatePicker
             selectedDate={selectedDate}
             onDateChange={setSelectedDate}
-            minDate={(() => {
-              const threeDaysAgo = new Date();
-              threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
-              return threeDaysAgo.toISOString().split('T')[0];
-            })()}
-            maxDate={new Date().toISOString().split('T')[0]}
+            minDate="2024-11-16"
+            maxDate="2024-11-19"
           />
         )}
       </div>
@@ -239,10 +235,13 @@ function TeamMembersPanel({ project, team, selectedMemberId, onMemberSelect, onM
                           messagesToShow = member.messages.filter(msg => {
                             // If message has a date field, filter by it
                             if (msg.date) {
-                              return msg.date === selectedDate;
+                              // Compare dates (handle both ISO format and date strings)
+                              const msgDate = msg.date.split('T')[0]; // Get just the date part
+                              const selectedDateOnly = selectedDate.split('T')[0];
+                              return msgDate === selectedDateOnly;
                             }
-                            // If no date field, only show on today's date
-                            return selectedDate === new Date().toISOString().split('T')[0];
+                            // If no date field, only show on November 19, 2024 (default date)
+                            return selectedDate === '2024-11-19';
                           });
                         }
                         

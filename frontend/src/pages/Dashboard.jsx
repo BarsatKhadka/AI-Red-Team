@@ -12,6 +12,8 @@ import { getMemberImage } from '../utils/memberImages';
 
 function Dashboard() {
   const [aiReply, setAiReply] = useState(null);
+  const [streamedReplyText, setStreamedReplyText] = useState('');
+  const streamedReplyTextRef = useRef('');
   const [currentMessage, setCurrentMessage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [showNewProjectModal, setShowNewProjectModal] = useState(false);
@@ -249,39 +251,41 @@ function Dashboard() {
       }
     }
     
-    setLoading(true);
-    try {
-      const response = await fetch('http://localhost:8000/clarify-reply', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+    // Set message data and start streaming directly
+    const messageData = { 
+      memberName, 
+      messageType, 
+      messageText,
+      text: messageText,
+      messageText: messageText,
+      projectName,
+      teamName,
+      messageSource: messageSource || 'outlook'
+    };
+    
+    // Set the current message and start streaming
+    setCurrentMessage(messageData);
+    setIsStreaming(true);
+    setStreamComplete(false);
+    setLoading(false);
+    setStreamedReplyText(''); // Reset streamed text
+    streamedReplyTextRef.current = ''; // Reset ref
+    
+    // Store request body for streaming - use a stable object
+    const requestBody = {
           member_name: memberName,
           message_type: messageType,
           message_text: messageText,
           project_name: projectName,
           team_name: teamName,
           documents: {},
-        }),
-      });
-
-      const data = await response.json();
-      handleMessageSelect(data, { 
-        memberName, 
-        messageType, 
-        messageText,
-        text: messageText,
-        messageText: messageText,
-        projectName,
-        teamName,
-        messageSource: messageSource || 'outlook'
-      });
-    } catch (error) {
-      console.error('Error getting AI reply:', error);
-    } finally {
-      setLoading(false);
-    }
+    };
+    
+    setAiReply({
+      reply: '',
+      sourceDocuments: ['Technical Design Document'],
+      requestBody: requestBody
+    });
   };
 
   const getMessageTypeColor = (type) => {
@@ -338,19 +342,19 @@ function Dashboard() {
             {/* Member Bio Summary - Profile Analysis */}
             {selectedMember && (
               <>
-                <div 
-                  className="flex-shrink-0 border-b border-border-light bg-bg-card px-6 py-3"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <MemberBioSummary 
-                    member={selectedMember}
-                    project={selectedProject}
-                    team={selectedTeam}
-                    compact={currentMessage !== null && expandedProfile === false}
-                    onExpand={handleExpandProfile}
-                    onCollapse={handleCollapseProfile}
-                  />
-                </div>
+              <div 
+                className="flex-shrink-0 border-b border-border-light bg-bg-card px-6 py-3"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <MemberBioSummary 
+                  member={selectedMember}
+                  project={selectedProject}
+                  team={selectedTeam}
+                  compact={currentMessage !== null && expandedProfile === false}
+                  onExpand={handleExpandProfile}
+                  onCollapse={handleCollapseProfile}
+                />
+              </div>
               </>
             )}
             
@@ -387,8 +391,8 @@ function Dashboard() {
                       <div className="bg-gradient-to-br from-bg-card to-bg-card/50 rounded-md p-4 border border-border-light shadow-sm">
                         <div className="flex items-center gap-2 mb-3">
                           <span className={`text-xs font-medium px-2.5 py-1 rounded-sm ${getMessageTypeColor(currentMessage.messageType)}`}>
-                            {currentMessage.messageType}
-                          </span>
+                          {currentMessage.messageType}
+                        </span>
                         </div>
                         <p className="text-sm text-text-primary leading-relaxed whitespace-pre-wrap">{currentMessage.messageText}</p>
                       </div>
@@ -399,11 +403,11 @@ function Dashboard() {
                   {loading && (
                     <div className="flex items-start gap-3">
                       <div className="relative flex-shrink-0">
-                        <img 
-                          src="https://api.dicebear.com/7.x/bottts/svg?seed=AI-Assistant&backgroundColor=4f46e5"
-                          alt="AI Assistant"
+                      <img 
+                        src="https://api.dicebear.com/7.x/bottts/svg?seed=AI-Assistant&backgroundColor=4f46e5"
+                        alt="AI Assistant"
                           className="w-8 h-8 rounded-full object-cover"
-                        />
+                      />
                         <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-success rounded-full border-2 border-bg-card animate-pulse" />
                       </div>
                       <div className="flex-1">
@@ -419,7 +423,7 @@ function Dashboard() {
                     </div>
                   )}
 
-                  {aiReply && !loading && (
+                  {(aiReply || isStreaming) && !loading && (
                     <div className="flex items-start gap-3">
                       <img 
                         src="https://api.dicebear.com/7.x/bottts/svg?seed=AI-Assistant&backgroundColor=4f46e5"
@@ -555,17 +559,135 @@ function Dashboard() {
                               <div className="space-y-2">
                                 <div className="flex items-center gap-2 mb-2">
                                   <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-                                  <span className="text-xs font-medium text-primary">AI is writing...</span>
+                                  <span className="text-xs font-medium text-primary">
+                                    {aiReply?.requestBody?.modification_prompt ? 'AI is updating reply...' : 'AI is writing...'}
+                                  </span>
                                 </div>
                                 <StreamingText
-                                  text={aiReply.reply || ''}
-                                  speed={15}
+                                  key={aiReply?.requestBody ? JSON.stringify(aiReply.requestBody) : `default-${streamComplete ? 'complete' : 'streaming'}`}
+                                  endpoint={aiReply?.requestBody ? 'http://localhost:8000/clarify-reply-stream' : (aiReply?.reply ? 'http://localhost:8000/clarify-reply-stream' : 'http://localhost:8000/streaming-text')}
+                                  requestBody={aiReply?.requestBody || (aiReply?.reply ? {
+                                    member_name: currentMessage?.memberName || '',
+                                    message_type: currentMessage?.messageType || '',
+                                    message_text: currentMessage?.text || currentMessage?.messageText || '',
+                                    project_name: selectedProject?.name || '',
+                                    team_name: selectedTeam?.name || '',
+                                    documents: {}
+                                  } : { text: aiReply?.reply || '' })}
+                                  onTextUpdate={(text) => {
+                                    // Update the ref and state - this is the source of truth during streaming
+                                    setStreamedReplyText(text);
+                                    streamedReplyTextRef.current = text;
+                                    console.log('Text update - length:', text.length, 'preview:', text.substring(0, 50));
+                                  }}
                                   onComplete={() => {
-                                    setIsStreaming(false);
-                                    setStreamComplete(true);
+                                    // Get the final text from ref (always has latest value)
+                                    const finalText = streamedReplyTextRef.current || streamedReplyText || '';
+                                    
+                                    console.log('Streaming complete, final text:', finalText.substring(0, 150));
+                                    console.log('Streaming complete, final text length:', finalText.length);
+                                    
+                                    // Update aiReply with final text immediately (before clearing requestBody)
+                                    setAiReply(prev => {
+                                      if (prev) {
+                                        return { 
+                                          ...prev, 
+                                          reply: finalText,
+                                          requestBody: null // Clear requestBody so it shows the final reply
+                                        };
+                                      }
+                                      return { 
+                                        reply: finalText, 
+                                        sourceDocuments: ['Technical Design Document'], 
+                                        requestBody: null 
+                                      };
+                                    });
+                                    
+                                    // Update state flags after aiReply is updated
+                                    // Use a small delay to ensure React processes the aiReply update first
+                                    setTimeout(() => {
+                                      setIsStreaming(false);
+                                      setStreamComplete(true);
+                                    }, 100);
                                   }}
                                   className="text-sm text-text-primary leading-relaxed"
                                 />
+                                
+                                {/* Prompt Input to Modify AI Reply - Below streaming */}
+                                <div className="mt-4 pt-4 border-t border-primary/20">
+                                  <div className="mb-2">
+                                    <label className="text-xs font-medium text-text-secondary mb-1 block">
+                                      Prompt AI to Modify Reply
+                                    </label>
+                                  </div>
+                                  <textarea
+                                    value={promptText}
+                                    onChange={(e) => setPromptText(e.target.value)}
+                                    className="w-full px-3 py-2 border border-border-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm resize-none bg-bg"
+                                    rows="2"
+                                    placeholder="e.g., Make it more concise, add more technical details..."
+                                  />
+                                  <div className="flex gap-2 mt-2 justify-end">
+                                    <button
+                                      onClick={() => setPromptText('')}
+                                      className="px-3 py-1.5 bg-border-medium text-text-primary rounded hover:bg-border-light text-xs transition-colors"
+                                    >
+                                      Clear
+                                    </button>
+                                    <button
+                                      onClick={async () => {
+                                        if (!currentMessage || !promptText.trim()) return;
+                                        setIsStreaming(true);
+                                        setStreamComplete(false);
+                                        setLoading(false);
+                                        
+                                        // Use the streamed reply text or fallback to aiReply.reply
+                                        // Get the latest text from ref first, then state, then aiReply
+                                        const previousReply = streamedReplyTextRef.current || streamedReplyText || aiReply?.reply || '';
+                                        
+                                        console.log('Modify Reply - Previous reply:', previousReply.substring(0, 100));
+                                        console.log('Modify Reply - Prompt:', promptText);
+                                        
+                                        // Create stable request body object
+                                        const newRequestBody = {
+                                          member_name: currentMessage.memberName,
+                                          message_type: currentMessage.messageType,
+                                          message_text: currentMessage.text || currentMessage.messageText || '',
+                                          project_name: selectedProject?.name || '',
+                                          team_name: selectedTeam?.name || '',
+                                          modification_prompt: promptText,
+                                          previous_reply: previousReply, // Make sure this is the actual previous reply
+                                          documents: {}
+                                        };
+                                        
+                                        // Force a new stream by clearing and resetting
+                                        setStreamedReplyText('');
+                                        streamedReplyTextRef.current = '';
+                                        setStreamComplete(false);
+                                        
+                                        // Update aiReply with new request body for streaming
+                                        // This will trigger the StreamingText component to call /clarify-reply-stream with AI
+                                        setAiReply({
+                                          reply: '', // Clear old reply
+                                          sourceDocuments: aiReply?.sourceDocuments || ['Technical Design Document'],
+                                          requestBody: newRequestBody // This ensures it uses /clarify-reply-stream endpoint (AI-powered)
+                                        });
+                                        
+                                        setPromptText('');
+                                        
+                                        console.log('Modify Reply - Request body set:', {
+                                          hasRequestBody: !!newRequestBody,
+                                          hasModificationPrompt: !!newRequestBody.modification_prompt,
+                                          hasPreviousReply: !!newRequestBody.previous_reply,
+                                          previousReplyLength: newRequestBody.previous_reply?.length || 0
+                                        });
+                                      }}
+                                      className="px-3 py-1.5 bg-[#4F46E5] hover:bg-[#4338CA] text-white rounded text-xs transition-colors"
+                                    >
+                                      Modify Reply
+                                    </button>
+                                  </div>
+                                </div>
                               </div>
                             ) : (
                               <div className="space-y-2">
@@ -573,7 +695,14 @@ function Dashboard() {
                                   <div className="w-2 h-2 bg-success rounded-full" />
                                   <span className="text-xs font-medium text-success">AI reply complete</span>
                                 </div>
-                                <p className="text-sm text-text-primary leading-relaxed whitespace-pre-wrap">{aiReply.reply || ''}</p>
+                                <p className="text-sm text-text-primary leading-relaxed whitespace-pre-wrap">
+                                  {(() => {
+                                    // Always prefer the most recent text - check ref first, then state, then aiReply
+                                    const displayText = streamedReplyTextRef.current || streamedReplyText || aiReply?.reply || '';
+                                    console.log('Displaying reply - length:', displayText.length, 'preview:', displayText.substring(0, 100));
+                                    return displayText;
+                                  })()}
+                                </p>
                                 
                                 {/* Prompt Input to Modify AI Reply - Inside the box */}
                                 <div className="mt-4 pt-4 border-t border-primary/20">

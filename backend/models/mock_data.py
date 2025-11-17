@@ -1,8 +1,11 @@
 # Mock data structure: Projects -> Teams -> Team Members -> Messages
 from datetime import datetime, timedelta
 
-# Calculate dates for messages (today, yesterday, 2 days ago, 3 days ago)
-today = datetime.now().date()
+# Set target date to November 19, 2024
+target_date = datetime(2024, 11, 19).date()
+
+# Calculate dates for messages (November 19, 18, 17, 16)
+today = target_date
 yesterday = today - timedelta(days=1)
 two_days_ago = today - timedelta(days=2)
 three_days_ago = today - timedelta(days=3)
